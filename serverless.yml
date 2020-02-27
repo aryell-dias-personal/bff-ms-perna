@@ -1,0 +1,52 @@
+service: perna-app
+
+provider:
+  name: aws
+  stage: dev
+  region: ${self:custom.regions.${self:provider.stage}}
+  versionFunctions: false
+  environment:
+    STAGE: ${self:provider.stage}
+    REGION: ${self:provider.region}
+    SERVICE: ${self:service}
+    GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
+    GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
+
+custom:
+  serverless-offline:
+    port: 1337
+  regions:
+    prd: us-east-1
+    hml: us-east-1
+    dev: us-east-1
+    test: us-east-1
+  GOOGLE_URL: 
+    dev: 'https://maps.googleapis.com/maps/api'
+    prd: 'https://maps.googleapis.com/maps/api'
+    hml: 'https://maps.googleapis.com/maps/api'
+  GOOGLE_CREDENTIAL: 
+    dev: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
+    prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
+    hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
+
+functions:
+  getMatrix:
+    runtime: nodejs10.x
+    handler: index.getMatrix
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+          - sqs:*
+          - s3:*
+        Resource: '*'
+  getRoutes:
+    runtime: python3.6
+    handler: index.getRoutes
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+          - sqs:*
+          - s3:*
+        Resource: '*'
