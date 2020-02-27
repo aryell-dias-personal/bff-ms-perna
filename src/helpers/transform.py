@@ -1,8 +1,12 @@
 import numpy as np
+from src.helpers.constants import MATRIX_FIELDS
 
 def binaryTroughtMatrix(adjacencyMatrix, localNames, askedPoints, binaryList):
     askedPoints = [point for binary, point in zip(binaryList, askedPoints) if binary]
-    validLocalNames = np.unique([list(point.values()) for point in askedPoints]).flatten()
+    validLocalNames = np.unique([list([
+        point[MATRIX_FIELDS.ORIGIN], 
+        point[MATRIX_FIELDS.DESTINY]
+    ]) for point in askedPoints]).flatten()
     if(len(validLocalNames)):
         indexes, localNames = zip(*[(i, name) for i, name in enumerate(localNames) if name in validLocalNames])
     else:

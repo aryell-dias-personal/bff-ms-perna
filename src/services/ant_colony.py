@@ -37,7 +37,7 @@ class AntSystem:
         localFactors = []
         for i in possibleChoices:
             pheromone, distance = self.pheromonesDistrib[currentLocal, i]
-            attractivity = 1/(distance + 0.001) if distance != 0 else 0
+            attractivity = 1/distance if distance != 0 else 0
             localFactors.append(
                 (pheromone**self.alpha) * (attractivity**self.beta)
             )
