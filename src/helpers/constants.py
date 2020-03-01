@@ -9,3 +9,6 @@ class MATRIX_FIELDS:
 class AGENT_FIELDS:
     ID = "_id"
     NUMBER_OF_PLACES = "places"
+    GARAGE = "garage"
+    START_AT = "startAt"
+    END_AT = "endAt"

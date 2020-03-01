@@ -19,10 +19,10 @@ class GeneticAlgorithm:
         result = []
         for i in range(1, self.numAgents+1):
             binaryList = chromosome[(i-1)*self.numRoutes: i*self.numRoutes]
-            antColonyArgs = binaryTroughtMatrix(**self.matrix, binaryList=binaryList)
+            antColonyArgs = binaryTroughtMatrix(**self.matrix, agentGarage=self.agents[i-1][AGENT_FIELDS.GARAGE], binaryList=binaryList)
             route = []
             if len(antColonyArgs[MATRIX_FIELDS.LOCAL_NAMES]) :
-                self.antSystem.initialize(**antColonyArgs)
+                self.antSystem.initialize(**antColonyArgs, agent=self.agents[i-1])
                 self.antSystem.run()
                 encodedRoute, _ = self.antSystem.bestSolution
                 previous = None
@@ -44,12 +44,13 @@ class GeneticAlgorithm:
         countAgents = [sum(agentsPerRoute) for agentsPerRoute in agentsPerRoutes]
         routesShared = any(np.array(countAgents) > 1)
         
-        notCrowded = all([
-            sum(routesPerAgent) <= self.agents[i][AGENT_FIELDS.NUMBER_OF_PLACES]
-            for i, routesPerAgent in enumerate(routesPerAgents)
-        ])
+        return (not routesShared) and (sum(chromosome) == self.numRoutes)
+        # notCrowded = all([
+        #     sum(routesPerAgent) <= self.agents[i][AGENT_FIELDS.NUMBER_OF_PLACES]
+        #     for i, routesPerAgent in enumerate(routesPerAgents)
+        # ])
 
-        return (not routesShared) and (sum(chromosome) == self.numRoutes) and notCrowded
+        # return (not routesShared) and (sum(chromosome) == self.numRoutes) and notCrowded
 
     def randomChromossome(self, chromosomeSize):
         numAgents = list(range(self.numAgents))
@@ -85,9 +86,9 @@ class GeneticAlgorithm:
         if(cacheName not in self.cache.keys()):
             for i in range(1, self.numAgents+1):
                 binaryList = individual[(i-1)*self.numRoutes: i*self.numRoutes]
-                antColonyArgs = binaryTroughtMatrix(**self.matrix, binaryList=binaryList)
+                antColonyArgs = binaryTroughtMatrix(**self.matrix, agentGarage=self.agents[i-1][AGENT_FIELDS.GARAGE] , binaryList=binaryList)
                 if len(antColonyArgs[MATRIX_FIELDS.LOCAL_NAMES]) :
-                    self.antSystem.initialize(**antColonyArgs)
+                    self.antSystem.initialize(**antColonyArgs, agent=self.agents[i-1])
                     self.antSystem.run()
                     _ , cost = self.antSystem.bestSolution
                 else:
@@ -109,5 +110,5 @@ class GeneticAlgorithm:
             for _ in range(self.population_size - len(survivors)):
                 newElement = self.mutation(next(gen))
                 new_population.append(newElement)
-            print(*list(zip(self.population, fitness_values))[0])
+            print(*list(zip(self.population, fitness_values)))
             self.population = new_population
