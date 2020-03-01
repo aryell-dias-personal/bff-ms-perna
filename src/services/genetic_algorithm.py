@@ -8,6 +8,7 @@ from src.helpers.transform import binaryTroughtMatrix
 class GeneticAlgorithm:
     
     def __init__(self, antSystem):
+        self.cache = {}
         self.antSystem = antSystem
         self.selection = Selection()
         self.crossover = Crossover()
@@ -19,9 +20,17 @@ class GeneticAlgorithm:
         for i in range(1, self.numAgents+1):
             binaryList = chromosome[(i-1)*self.numRoutes: i*self.numRoutes]
             antColonyArgs = binaryTroughtMatrix(**self.matrix, binaryList=binaryList)
-            self.antSystem.initialize(**antColonyArgs)
-            self.antSystem.run()
-            route, _ = self.antSystem.bestSolution
+            route = []
+            if len(antColonyArgs[MATRIX_FIELDS.LOCAL_NAMES]) :
+                self.antSystem.initialize(**antColonyArgs)
+                self.antSystem.run()
+                encodedRoute, _ = self.antSystem.bestSolution
+                previous = None
+                for j in encodedRoute:
+                    decodedJ = self.antSystem.decodeInd(j)
+                    if(previous != decodedJ):
+                        route.append(decodedJ)
+                        previous = decodedJ
             result.append({
                 "agent_id": self.agents[i-1][AGENT_FIELDS.ID],
                 "route": [self.antSystem.localNames[j] for j in route]
@@ -39,20 +48,23 @@ class GeneticAlgorithm:
             sum(routesPerAgent) <= self.agents[i][AGENT_FIELDS.NUMBER_OF_PLACES]
             for i, routesPerAgent in enumerate(routesPerAgents)
         ])
-        
+
         return (not routesShared) and (sum(chromosome) == self.numRoutes) and notCrowded
 
     def randomChromossome(self, chromosomeSize):
-        return np.random.choice(self.gene_set, size=chromosomeSize)
+        numRoutes = list(range(self.numRoutes))
+        chosedIndex = np.random.choice(numRoutes, self.numAgents)
+        chromosome = [[int(chosedIndex[i] == j) for j in numRoutes] for i in range(self.numAgents)]
+        return list(np.array(list(zip(*chromosome))).flatten())
 
     def initialize(self, matrix, agents, populationSize = 100):
-        self.mutation.setup(self.gene_set)
         self.matrix = matrix
         self.agents = agents
         self.numAgents = len(agents)
         self.numRoutes = len(matrix[MATRIX_FIELDS.ASKED_POINTS])
         chromosomeSize = self.numRoutes * self.numAgents
-        self.crossover.setup(self.gene_set, chromosomeSize)
+        self.mutation.setup(self.gene_set, self.numRoutes, self.numAgents)
+        self.crossover.setup(self.gene_set, self.numRoutes, self.numAgents)
         self.population_size = populationSize
         population = []
         for _ in range(populationSize):            
@@ -69,17 +81,20 @@ class GeneticAlgorithm:
         if not self.isValidChromosome(individual):
             return -1
         costs = []
-        for i in range(1, self.numAgents+1):
-            binaryList = individual[(i-1)*self.numRoutes: i*self.numRoutes]
-            antColonyArgs = binaryTroughtMatrix(**self.matrix, binaryList=binaryList)
-            if len(antColonyArgs[MATRIX_FIELDS.LOCAL_NAMES]) :
-                self.antSystem.initialize(**antColonyArgs)
-                self.antSystem.run()
-                _ , cost = self.antSystem.bestSolution
-            else:
-                cost = 0
-            costs.append(cost)
-        return (1/max(costs))*(1/sum(costs))
+        cacheName = ''.join([str(gene) for gene in individual])
+        if(cacheName not in self.cache.keys()):
+            for i in range(1, self.numAgents+1):
+                binaryList = individual[(i-1)*self.numRoutes: i*self.numRoutes]
+                antColonyArgs = binaryTroughtMatrix(**self.matrix, binaryList=binaryList)
+                if len(antColonyArgs[MATRIX_FIELDS.LOCAL_NAMES]) :
+                    self.antSystem.initialize(**antColonyArgs)
+                    self.antSystem.run()
+                    _ , cost = self.antSystem.bestSolution
+                else:
+                    cost = 0
+                costs.append(cost)
+            self.cache[cacheName] = len(costs)/sum(costs)
+        return self.cache[cacheName]
 
     def run(self, numInter=100):
         for i in range(numInter):
@@ -94,4 +109,5 @@ class GeneticAlgorithm:
             for _ in range(self.population_size - len(survivors)):
                 newElement = self.mutation(next(gen))
                 new_population.append(newElement)
+            # print(*list(zip(self.population, fitness_values)))
             self.population = new_population

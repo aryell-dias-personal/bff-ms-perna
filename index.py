@@ -8,6 +8,5 @@ def getRoutes(event, context):
     antSystem = AntSystem()
     geneticSystem = GeneticAlgorithm(antSystem)
     geneticSystem.initialize(**event)
-    geneticSystem.run(numInter=1)
-    # geneticSystem.run()
+    geneticSystem.run()
     return geneticSystem.decodeChromosome(geneticSystem.population[0])

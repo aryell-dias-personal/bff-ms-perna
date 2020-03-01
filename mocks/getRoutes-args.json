@@ -9,27 +9,37 @@
         "localNames": ["recife", "igarassu", "caruaru", "goiana"],
         "askedPoints": [
             {
-                "origin": "recife",
-                "destiny": "goiana"
+                "origin": "recife-0",
+                "destiny": "goiana-1",
+                "startAt": 0,
+                "endAt": 4000
             },
             {
-                "origin": "igarassu",
-                "destiny": "caruaru"
+                "origin": "igarassu-2",
+                "destiny": "caruaru-3",
+                "startAt": 0,
+                "endAt": 8000
             },
             {
-                "origin": "goiana",
-                "destiny": "caruaru"
+                "origin": "goiana-4",
+                "destiny": "caruaru-5",
+                "startAt": 4200,
+                "endAt": 13000
             }
         ]
     },
     "agents": [
         {   
             "_id": "um id ai",
-            "places": 1
+            "places": 200
         },
         {
             "_id": "outro id ai",
-            "places": 2
+            "places": 200
+        },
+        {
+            "_id": "outro id ai",
+            "places": 200
         }
     ]
 }
