@@ -5,9 +5,9 @@ class Mutation:
         self.mutation_rate = mutation_rate
 
     def generateMutant(self):
-        numRoutes = list(range(self.numRoutes))
-        chosedIndex = np.random.choice(numRoutes)
-        return [int(chosedIndex == j) for j in numRoutes]
+        numAgents = list(range(self.numAgents))
+        chosedIndex = np.random.choice(numAgents)
+        return [int(chosedIndex == j) for j in numAgents]
 
     def setup(self, gene_set, numRoutes, numAgents):
         self.numRoutes = numRoutes
@@ -26,7 +26,7 @@ class Mutation:
         numberOfMutations = int(chromosomeSize*self.mutation_rate)
 
         mutationGenes = []
-        places = list(range(decodedChromosome.__len__()))
+        places = list(range(chromosomeSize))
         for _ in range(numberOfMutations):
             place = np.random.choice(places)
             mutationGenes += [place]
@@ -34,5 +34,5 @@ class Mutation:
         newChromossome = list(decodedChromosome)
         for place in mutationGenes:
             mutant = self.generateMutant()
-        newChromossome[place] = mutant
+            newChromossome[place] = mutant
         return self.encodeChromosome(newChromossome)

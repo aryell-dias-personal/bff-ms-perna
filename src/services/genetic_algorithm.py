@@ -52,9 +52,9 @@ class GeneticAlgorithm:
         return (not routesShared) and (sum(chromosome) == self.numRoutes) and notCrowded
 
     def randomChromossome(self, chromosomeSize):
-        numRoutes = list(range(self.numRoutes))
-        chosedIndex = np.random.choice(numRoutes, self.numAgents)
-        chromosome = [[int(chosedIndex[i] == j) for j in numRoutes] for i in range(self.numAgents)]
+        numAgents = list(range(self.numAgents))
+        chosedIndex = np.random.choice(numAgents, self.numRoutes)
+        chromosome = [[int(chosedIndex[i] == j) for j in numAgents] for i in range(self.numRoutes)]
         return list(np.array(list(zip(*chromosome))).flatten())
 
     def initialize(self, matrix, agents, populationSize = 100):
@@ -109,5 +109,5 @@ class GeneticAlgorithm:
             for _ in range(self.population_size - len(survivors)):
                 newElement = self.mutation(next(gen))
                 new_population.append(newElement)
-            # print(*list(zip(self.population, fitness_values)))
+            print(*list(zip(self.population, fitness_values))[0])
             self.population = new_population

@@ -22,7 +22,7 @@ class Crossover:
     def run(self, chromosomes):
         chromosome = []
         complementaryChromosome = []
-        for i in range(self.numAgents):
+        for i in range(self.numRoutes):
             index = np.random.choice(1)
             complementaryIndex = np.abs(index-1)
             chromosome.append(chromosomes[index][i])
