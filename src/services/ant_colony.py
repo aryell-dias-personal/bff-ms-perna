@@ -90,7 +90,7 @@ class AntSystem:
             _ , distance = self.pheromonesDistrib[self.decodeInd(currentLocal), self.decodeInd(nextLocal)]
             actualTime = routeCost + self.startTime
             timeCost = actualTime - desiredTime
-            timeCostFactor += np.abs(timeCost)/1500 if np.abs(timeCost) > 1500 else 0
+            timeCostFactor += np.abs(timeCost)/1000 if np.abs(timeCost) > 1000 else 0
             routeCost += distance
         places = self.places + len(set(self.destinations).intersection(set(route))) - len(set(route).intersection(set(self.origens)))
         if(withTimeProximity):

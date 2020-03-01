@@ -18,7 +18,7 @@
                 "origin": "igarassu-2",
                 "destiny": "caruaru-3",
                 "startAt": 0,
-                "endAt": 12000
+                "endAt": 8000
             },
             {
                 "origin": "goiana-4",
@@ -34,14 +34,14 @@
             "places": 1,
             "garage": "recife-6",
             "startAt": 0,
-            "endAt":100000
+            "endAt": 16700
         },
         {
             "_id": "outro id ai",
             "places": 1,
             "garage": "igarassu-7",
             "startAt": 0,
-            "endAt":100000
+            "endAt": 16000
         }
     ]
 }

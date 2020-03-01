@@ -3,15 +3,17 @@
         "agent_id": "um id ai",
         "route": [
             "recife",
-            "goiana"
+            "goiana",
+            "recife"
         ]
     },
     {
         "agent_id": "outro id ai",
         "route": [
-            "goiana",
             "igarassu",
-            "caruaru"
+            "goiana",
+            "caruaru",
+            "igarassu"
         ]
     }
 ]
