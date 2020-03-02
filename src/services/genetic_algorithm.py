@@ -45,12 +45,6 @@ class GeneticAlgorithm:
         routesShared = any(np.array(countAgents) > 1)
         
         return (not routesShared) and (sum(chromosome) == self.numRoutes)
-        # notCrowded = all([
-        #     sum(routesPerAgent) <= self.agents[i][AGENT_FIELDS.NUMBER_OF_PLACES]
-        #     for i, routesPerAgent in enumerate(routesPerAgents)
-        # ])
-
-        # return (not routesShared) and (sum(chromosome) == self.numRoutes) and notCrowded
 
     def randomChromossome(self, chromosomeSize):
         numAgents = list(range(self.numAgents))
@@ -110,5 +104,5 @@ class GeneticAlgorithm:
             for _ in range(self.population_size - len(survivors)):
                 newElement = self.mutation(next(gen))
                 new_population.append(newElement)
-            print(*list(zip(self.population, fitness_values)))
+            # print(*list(zip(self.population, fitness_values))[0])
             self.population = new_population

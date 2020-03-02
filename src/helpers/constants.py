@@ -12,3 +12,9 @@ class AGENT_FIELDS:
     GARAGE = "garage"
     START_AT = "startAt"
     END_AT = "endAt"
+
+class ENCODED_NAMES:
+    SEPARETOR = '-'
+
+class ANT_CNFG:
+    TIME_THRESHOLD = 1000

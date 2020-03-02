@@ -1,5 +1,5 @@
 import numpy as np
-from src.helpers.constants import MATRIX_FIELDS, AGENT_FIELDS
+from src.helpers.constants import MATRIX_FIELDS, AGENT_FIELDS, ENCODED_NAMES, ANT_CNFG
 
 class AntSystem:
 
@@ -13,22 +13,33 @@ class AntSystem:
         self.askedPoints = None
         self.adjacencyMatrix = None
         self.pheromonesDistrib = None
-        self.evaporationRate = evaporationRate
-        self.initialPheromone = initialPheromone
         self.bestSolution = None, None
         self.bestSolutionRecord = None
+        self.evaporationRate = evaporationRate
+        self.initialPheromone = initialPheromone
 
     def initialize(self, localNames, adjacencyMatrix, askedPoints, agent):
-        self.startTime = agent[AGENT_FIELDS.START_AT]
-        self.endTime = agent[AGENT_FIELDS.END_AT]
-        self.places = agent[AGENT_FIELDS.NUMBER_OF_PLACES]
         self.garage = 0
         self.localNames = localNames
-        self.encodedNames = [agent[AGENT_FIELDS.GARAGE]] + list(np.unique([[
+        self.askedPoints = askedPoints
+        self.numLabels = len(localNames)
+        self.bestSolution = None, np.inf
+        self.adjacencyMatrix = adjacencyMatrix
+        self.endTime = agent[AGENT_FIELDS.END_AT]
+        self.startTime = agent[AGENT_FIELDS.START_AT]
+        self.bestSolutionRecord = [self.bestSolution[1]]
+        self.places = agent[AGENT_FIELDS.NUMBER_OF_PLACES]
+        self.extractEncodedNames(agent[AGENT_FIELDS.GARAGE])
+        self.extractOrigensAndDestines()
+        self.initPheromone()
+
+    def extractEncodedNames(self, garageName):
+        self.encodedNames = [garageName] + list(np.unique([[
             point[MATRIX_FIELDS.ORIGIN], 
             point[MATRIX_FIELDS.DESTINY] 
-        ] for point in askedPoints]).flatten())
-        self.askedPoints = askedPoints
+        ] for point in self.askedPoints]).flatten())
+
+    def extractOrigensAndDestines(self):
         if len(self.askedPoints) :
             self.origens, self.destinations = list(zip(*[
                 (self.encodedNames.index(askedPoint[MATRIX_FIELDS.ORIGIN]),
@@ -37,33 +48,40 @@ class AntSystem:
             ]))
         else:
             self.origens, self.destinations = [], []
-        self.bestSolution = None, np.inf
-        self.numLabels = len(localNames)
-        self.adjacencyMatrix = adjacencyMatrix
-        self.bestSolutionRecord = [self.bestSolution[1]]
-        self.pheromonesDistrib = np.zeros(2*[len(localNames)]+[2])
+
+    def initPheromone(self):
+        self.pheromonesDistrib = np.zeros(2*[len(self.localNames)]+[3])
         for i in range(self.numLabels):
             for j in range(self.numLabels):
                 self.pheromonesDistrib[i, j] = [
-                    self.initialPheromone, adjacencyMatrix[i][j][1]
+                    self.initialPheromone, *self.adjacencyMatrix[i][j]
                 ]
 
     def decodeInd(self, encodedPos):
-        originalName = self.encodedNames[encodedPos].split('-')[0]
+        originalName = self.encodedNames[encodedPos].split(ENCODED_NAMES.SEPARETOR)[0]
         return self.localNames.index(originalName)
+
+    def getTimeCost(self, currentLocal, routeLen, currentTime, timeSpent):
+        desiredTime = self.getDesiredTime(currentLocal, routeLen)
+        actualTime = currentTime+timeSpent
+        timeCost = actualTime - desiredTime
+        return np.abs(timeCost)
+
+    def getAvailablePlacesNumber(self, route):
+        shipped = len(set(route).intersection(set(self.origens)))
+        landed = len(set(self.destinations).intersection(set(route)))
+        return self.places + landed - shipped
 
     def getLocalProbabilities(self, currentLocal, possibleChoices, currentTime, currentRoute):
         localFactors = []
         for i in possibleChoices:
-            pheromone, distance = self.pheromonesDistrib[self.decodeInd(currentLocal), self.decodeInd(i)]
-            desiredTime = self.getDesiredTime(i, len(currentRoute))
-            actualTime = currentTime+distance
-            timeCost = actualTime - desiredTime
-            timeDesiredProximity = np.exp(-np.abs(timeCost))
+            pheromone, distance, timeSpent = self.pheromonesDistrib[self.decodeInd(currentLocal), self.decodeInd(i)]
+            timeCost = self.getTimeCost(currentLocal, len(currentRoute), currentTime, timeSpent)
+            timeDesiredProximity = np.exp(-timeCost)
             remainingDest = self.countRemaining(currentRoute+[i])
             remainingDestFactor = np.exp(-(remainingDest/len(self.destinations)))
-            futurePlaces = self.places + len(set(self.destinations).intersection(set(currentRoute+[i]))) - len(set(currentRoute+[i]).intersection(set(self.origens)))
-            attractivity = (1/distance) * timeDesiredProximity * remainingDestFactor if distance != 0 and futurePlaces >= 0 else 0
+            futurePlaces = self.getAvailablePlacesNumber(currentRoute+[i])
+            attractivity = (distance != 0 and futurePlaces >= 0) and (1/distance)*timeDesiredProximity*remainingDestFactor
             localFactors.append(
                 (pheromone**self.alpha) * (attractivity**self.beta)
             )
@@ -80,51 +98,54 @@ class AntSystem:
                 notClosed.remove(local)
         return len(set(self.origens) - set(route)) + len(notClosed)
 
-    def getRouteCost(self, route, withTimeProximity=False):
+    def getRouteCost(self, route):
         routeCost = 0
+        time = 0
         timeCostFactor = 1
         for i in range(len(route)-1):
             currentLocal = route[i]
             nextLocal = route[(i+1) % len(route)]
-            desiredTime = self.getDesiredTime(currentLocal, i)
-            _ , distance = self.pheromonesDistrib[self.decodeInd(currentLocal), self.decodeInd(nextLocal)]
-            actualTime = routeCost + self.startTime
-            timeCost = actualTime - desiredTime
-            timeCostFactor += np.abs(timeCost)/1000 if np.abs(timeCost) > 1000 else 0
+            timeCost = self.getTimeCost(currentLocal, i, self.startTime, time)
+            timeCostFactor += timeCost/ANT_CNFG.TIME_THRESHOLD if timeCost > ANT_CNFG.TIME_THRESHOLD else 0
+            _ , distance, timeSpent = self.pheromonesDistrib[self.decodeInd(currentLocal), self.decodeInd(nextLocal)]
+            time += timeSpent
             routeCost += distance
-        places = self.places + len(set(self.destinations).intersection(set(route))) - len(set(route).intersection(set(self.origens)))
-        if(withTimeProximity):
-            if self.countRemaining(route) != 0 or places < 0:
-                return np.inf
-            return routeCost*timeCostFactor
-        return routeCost
+        places = self.getAvailablePlacesNumber(route)
+        if self.countRemaining(route) != 0 or places < 0:
+            return np.inf
+        return routeCost*timeCostFactor
 
     def getPossibleChoices(self, currentRoute):
         possibleChoices = list(self.origens)
         for local in currentRoute:
             if local in possibleChoices:
                 if local in self.origens:
-                    possibleChoices = possibleChoices + [self.destinations[i] for i in range(len(self.origens)) if self.decodeInd(self.origens[i]) == self.decodeInd(local)]
+                    possibleChoices = possibleChoices + [
+                        self.destinations[i] for i in range(len(self.origens)) 
+                        if self.decodeInd(self.origens[i]) == self.decodeInd(local)
+                    ]
         possibleChoices  = list(set(possibleChoices) - set(currentRoute))
         return list(np.unique(possibleChoices))
 
     def getCurrentTime(self, currentRoute):
-        return self.startTime + self.getRouteCost(currentRoute)
+        time = 0
+        for i in range(len(currentRoute)-1):
+            currentLocal = currentRoute[i]
+            nextLocal = currentRoute[(i+1) % len(currentRoute)]
+            _,_, timeSpent = self.pheromonesDistrib[self.decodeInd(currentLocal), self.decodeInd(nextLocal)]
+            time += timeSpent
+        return self.startTime + time
 
     def getDesiredTime(self, currentLocal, routeLen):
         if(currentLocal == 0):
-            if(routeLen>1):
-                return self.endTime
-            else: 
-                return self.startTime
-        desiredOriginTime = [askedPoint[MATRIX_FIELDS.START_AT] for askedPoint in self.askedPoints 
-            if currentLocal == self.encodedNames.index(askedPoint[MATRIX_FIELDS.ORIGIN])]
-        if(desiredOriginTime.__len__() > 0):
-            return desiredOriginTime[0]
-        else:
-            desiredDestinyTime = [askedPoint[MATRIX_FIELDS.END_AT] for askedPoint in self.askedPoints 
-                if currentLocal == self.encodedNames.index(askedPoint[MATRIX_FIELDS.DESTINY])]
-            return desiredDestinyTime[0]
+            return self.endTime if routeLen>1 else self.startTime
+        for askedPoint in self.askedPoints:
+            encDestIndex = self.encodedNames.index(askedPoint[MATRIX_FIELDS.DESTINY])
+            encOrigIndex = self.encodedNames.index(askedPoint[MATRIX_FIELDS.ORIGIN])
+            if currentLocal == encDestIndex:
+                return askedPoint[MATRIX_FIELDS.END_AT]
+            elif currentLocal == encOrigIndex:
+                return askedPoint[MATRIX_FIELDS.START_AT]
 
     def chooseNextLocal(self, currentRoute):
         currentLocal = currentRoute[-1]
@@ -140,14 +161,16 @@ class AntSystem:
             self.bestSolution = routes[bestRoute], routeCosts[bestRoute]
         self.bestSolutionRecord.append(self.bestSolution[1])
 
-    def updatePheromone(self, routes, routeCosts):
+    def calculateDeltaPheromone(self, routes, routeCosts):
         deltaPheromone = np.zeros(2*[self.numLabels])
         for route, cost in zip(routes, routeCosts):
             for i in range(len(route)):
                 vertex1, vertex2 = self.decodeInd(route[i]), self.decodeInd(route[(i+1) % len(route)])
                 index = (vertex1, vertex2)
                 deltaPheromone[index] += self.Q/cost
-
+        return deltaPheromone
+        
+    def updatePheromone(self, deltaPheromone):
         for i in range(self.numLabels):
             for j in range(self.numLabels):
                 pheromone = self.pheromonesDistrib[i, j][0]
@@ -163,11 +186,12 @@ class AntSystem:
                     break
                 route.append(nextLocal)
             route.append(self.garage)
-        routeCosts = [self.getRouteCost(route, withTimeProximity=True) for route in routes]
+        routeCosts = [self.getRouteCost(route) for route in routes]
         return routes, routeCosts
 
     def run(self, numInt=100):
         for _ in range(numInt):
             routes, routeCosts = self.mountRoutes()
             self.updateBestRoute(routes, routeCosts)
-            self.updatePheromone(routes, routeCosts)
+            deltaPheromone = self.calculateDeltaPheromone(routes, routeCosts)
+            self.updatePheromone(deltaPheromone)

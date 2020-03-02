@@ -18,30 +18,44 @@
                 "origin": "igarassu-2",
                 "destiny": "caruaru-3",
                 "startAt": 0,
-                "endAt": 8000
+                "endAt": 12059
             },
             {
                 "origin": "goiana-4",
                 "destiny": "caruaru-5",
-                "startAt": 4000,
-                "endAt": 12700
+                "startAt": 2750,
+                "endAt": 12059
             }
         ]
     },
     "agents": [
         {   
             "_id": "um id ai",
-            "places": 1,
+            "places": 200,
             "garage": "recife-6",
             "startAt": 0,
-            "endAt": 16700
+            "endAt": 100000
         },
         {
             "_id": "outro id ai",
-            "places": 1,
+            "places": 200,
             "garage": "igarassu-7",
             "startAt": 0,
-            "endAt": 16000
+            "endAt": 100000
+        },
+        {
+            "_id": "outro id ai",
+            "places": 200,
+            "garage": "igarassu-7",
+            "startAt": 0,
+            "endAt": 100000
+        },
+        {
+            "_id": "outro id ai",
+            "places": 200,
+            "garage": "igarassu-7",
+            "startAt": 0,
+            "endAt": 100000
         }
     ]
 }
