@@ -1,7 +1,7 @@
 const { distanceMatrix } = require('./google-distance-api')
 const { GOOGLE_MAP_API } = require('../helpers/constants')
 
-module.exports.getGoogleMatrix = async ({localNames}) => {
+module.exports.getGoogleMatrix = async (localNames) => {
     const { rows = [] } = await distanceMatrix(localNames);
     const adjacencyMatrix = rows.map(({ elements }) => {
         return elements.map(({ distance, duration, status }) => {
@@ -9,8 +9,5 @@ module.exports.getGoogleMatrix = async ({localNames}) => {
                 return [distance.value, duration.value];
         });
     });
-    return { 
-        adjacencyMatrix,
-        localNames
-    }
+    return adjacencyMatrix
 }

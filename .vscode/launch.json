@@ -14,7 +14,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "NODE getMatrix",
+            "name": "NODE startRouteCalculation",
             "console": "integratedTerminal",
             "protocol": "inspector",
             "program": "${workspaceRoot}/node_modules/serverless/bin/serverless",
@@ -22,9 +22,9 @@
                 "invoke",
                 "local",
                 "--function",
-                "getMatrix",
+                "startRouteCalculation",
                 "-d",
-                "$(cat ${workspaceRoot}/mocks/getMatrix-args.json)"
+                "$(cat ${workspaceRoot}/mocks/startRouteCalculation-args.json)"
             ]
         },
         {

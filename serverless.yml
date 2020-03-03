@@ -10,6 +10,7 @@ provider:
     REGION: ${self:provider.region}
     SERVICE: ${self:service}
     DB_NAME: ${self:service}-${self:provider.stage}
+    CALCULATE_ROUTE: CALCULATE_ROUTE_${self:provider.stage}
     MONGO_URL:  ${self:custom.MONGO_URL.${self:provider.stage}}
     GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
     GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
@@ -36,9 +37,9 @@ custom:
     hml: ''
 
 functions:
-  getMatrix:
+  startRouteCalculation:
     runtime: nodejs10.x
-    handler: index.getMatrix
+    handler: index.startRouteCalculation
     iamRoleStatements:
       - Effect: Allow
         Action:
