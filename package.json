@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mongoose": "^5.9.3",
     "request": "^2.88.2",
     "serverless": "^1.64.0",
     "serverless-offline": "^5.12.1"

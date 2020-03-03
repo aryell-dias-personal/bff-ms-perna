@@ -9,6 +9,8 @@ provider:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
     SERVICE: ${self:service}
+    DB_NAME: ${self:service}-${self:provider.stage}
+    MONGO_URL:  ${self:custom.MONGO_URL.${self:provider.stage}}
     GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
     GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
 
@@ -28,6 +30,10 @@ custom:
     dev: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
     prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
     hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
+  MONGO_URL:
+    dev: ''
+    prd: ''
+    hml: ''
 
 functions:
   getMatrix:
