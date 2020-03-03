@@ -6,13 +6,14 @@ const aws = require('./src/services/aws');
 
 module.exports.startRouteCalculation = async (event, context, callback) => {
     try {
-        currentTime = 0; //current time in minutes
+
+        const { startTime, endTime } = event
     
         const agents = await AgentSchema.find({
-            startAt: { $gte: currentTime },
+            startAt: { $gte: startTime, $lte: endTime },
         });
         const askedPoints = await AskedPointSchema.find({
-            startAt: { $gte: currentTime },
+            startAt: { $gte: startTime, $lte: endTime },
         });
         const localNames = await LocalNamesArraySchema.findOne({
             used: false

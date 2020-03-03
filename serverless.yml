@@ -32,9 +32,9 @@ custom:
     prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
     hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
   MONGO_URL:
-    dev: ''
-    prd: ''
-    hml: ''
+    dev: 'mongodb://root:pernaApp00@localhost:27017'
+    prd: 'mongodb://root:pernaApp00@localhost:27017'
+    hml: 'mongodb://root:pernaApp00@localhost:27017'
 
 functions:
   startRouteCalculation:
@@ -50,6 +50,7 @@ functions:
   getRoutes:
     runtime: python3.6
     handler: index.getRoutes
+    timeout: 900
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -57,3 +58,7 @@ functions:
           - sqs:*
           - s3:*
         Resource: '*'
+    events:
+      - sqs:
+          arn: arn:aws:sqs:${self:provider.region}:#{AWS::AccountId}:CALCULATE_ROUTE_${self:provider.stage}
+          batchSize: 10

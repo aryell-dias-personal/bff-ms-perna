@@ -3,7 +3,7 @@ version: '3'
 services:
   mongo:
     image: mongo
-    container_name: odc-jec-admin-db
+    container_name: perna-app-db
     command: [--auth]
     restart: always
     ports:
@@ -12,4 +12,4 @@ services:
       - ./data/db:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: "root"
-      MONGO_INITDB_ROOT_PASSWORD: "Pitaang00"
+      MONGO_INITDB_ROOT_PASSWORD: "pernaApp00"
