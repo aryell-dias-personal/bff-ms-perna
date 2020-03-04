@@ -14,7 +14,6 @@ def getRoutes(event, context):
     geneticSystem.run()
     deleteMessage(receiptHandle, os.environ['CALCULATE_ROUTE'])
     result = geneticSystem.decodeChromosome(geneticSystem.population[0])
-    print(result)
     return result
 
 def getInfoFromEvent(event):
