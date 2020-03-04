@@ -16,6 +16,8 @@ provider:
     GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
 
 custom:
+  pythonRequirements:
+    fileName: requirements/${self:provider.stage}.txt
   serverless-offline:
     port: 1337
   regions:
@@ -47,6 +49,10 @@ functions:
           - sqs:*
           - s3:*
         Resource: '*'
+    events:
+      - http:
+          path: startRouteCalculation
+          method: get
   getRoutes:
     runtime: python3.6
     handler: index.getRoutes
@@ -62,3 +68,12 @@ functions:
       - sqs:
           arn: arn:aws:sqs:${self:provider.region}:#{AWS::AccountId}:CALCULATE_ROUTE_${self:provider.stage}
           batchSize: 10
+plugins:
+  - serverless-python-requirements
+
+package:
+  exclude:
+    - database/**
+    - package-lock.json
+    - .gitignore
+    - .vscode/**
