@@ -38,6 +38,14 @@ custom:
     prd: 'mongodb://root:pernaApp00@localhost:27017'
     hml: 'mongodb://root:pernaApp00@localhost:27017'
 
+resources:
+  Resources:
+    CalculateRouteQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: CALCULATE_ROUTE_${self:provider.stage}
+        VisibilityTimeout: 300
+
 functions:
   startRouteCalculation:
     runtime: nodejs10.x
