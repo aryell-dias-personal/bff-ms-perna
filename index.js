@@ -9,6 +9,7 @@ let conn = null;
 
 module.exports.startRouteCalculation = async (event, context, callback) => {
     try {
+        console.log("EVENT: \n" + JSON.stringify(event, null, 2))
         conn = await generate(conn);
         const { startTime, endTime } = event;
 
