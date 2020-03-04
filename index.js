@@ -36,9 +36,16 @@ module.exports.startRouteCalculation = async (event, context, callback) => {
         console.log(`GET_ROUTE_PAYLOAD: \n ${getRoutePayload}`, null, 2);
 
         await aws.sendMessage(getRoutePayload, process.env.CALCULATE_ROUTE);
-        return getRoutePayload;
+        console.log("PUTTED_ON_QUEUE");
+        return {
+            statusCode: 200,
+            body: JSON.stringify(getRoutePayload)
+        };
     } catch (error) {
         console.log(`ERROR: \n ${error}`, null, 2);
-        return error;
+        return {
+            statusCode: 500,
+            body: JSON.stringify(error)
+        };
     }
 }

@@ -18,6 +18,7 @@ provider:
 
 custom:
   pythonRequirements:
+    dockerizePip: true
     fileName: requirements/${self:provider.stage}.txt
   serverless-offline:
     port: 1337
@@ -79,7 +80,6 @@ plugins:
   - serverless-iam-roles-per-function
 
 package:
-  individually: true
   exclude:
     - database/**
     - package-lock.json
