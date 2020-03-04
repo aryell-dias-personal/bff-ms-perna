@@ -11,7 +11,7 @@ module.exports.startRouteCalculation = async (event, context, callback) => {
     try {
         console.log("EVENT: \n" + JSON.stringify(event, null, 2))
         conn = await generate(conn);
-        const { startTime, endTime } = event;
+        const { startTime, endTime } = JSON.parse(event.body);
 
         const agents = await AgentSchema.find({
             startAt: { $gte: startTime, $lte: endTime },
