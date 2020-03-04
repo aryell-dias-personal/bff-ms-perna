@@ -3,6 +3,7 @@ service: perna-app
 provider:
   name: aws
   stage: dev
+  timeout: 30
   region: ${self:custom.regions.${self:provider.stage}}
   versionFunctions: false
   environment:
@@ -34,9 +35,9 @@ custom:
     prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
     hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
   MONGO_URL:
-    dev: 'mongodb://root:pernaApp00@localhost:27017'
-    prd: 'mongodb://root:pernaApp00@localhost:27017'
-    hml: 'mongodb://root:pernaApp00@localhost:27017'
+    dev: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
+    prd: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
+    hml: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
 
 resources:
   Resources:
@@ -44,7 +45,7 @@ resources:
       Type: "AWS::SQS::Queue"
       Properties:
         QueueName: CALCULATE_ROUTE_${self:provider.stage}
-        VisibilityTimeout: 300
+        VisibilityTimeout: 900
 
 functions:
   startRouteCalculation:
@@ -58,7 +59,7 @@ functions:
     events:
       - http:
           path: startRouteCalculation
-          method: get
+          method: post
   getRoutes:
     runtime: python3.6
     handler: index.getRoutes
@@ -74,6 +75,8 @@ functions:
           batchSize: 10
 plugins:
   - serverless-python-requirements
+  - serverless-pseudo-parameters
+  - serverless-iam-roles-per-function
 
 package:
   individually: true
