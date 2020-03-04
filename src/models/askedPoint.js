@@ -20,10 +20,6 @@ const AskedPointSchema = new Schema({
     endAt: {
         required: true,
         type: Number
-    }, 
-    used: {
-        type: Boolean,
-        default: false
     }
 }, {
   timestamps: true

@@ -5,14 +5,14 @@ const {
 } = mongoose;
 
 const LocalNamesArraySchema = new Schema({
-    value: [{
-        required: true,
-        type: String
-    }],
-    used: {
-        type: Boolean,
-        default: false
-    }
+  value: [{
+    required: true,
+    type: String
+  }],
+  used: {
+    type: Boolean,
+    default: false
+  }
 }, {
   timestamps: true
 });
