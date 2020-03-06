@@ -7,11 +7,13 @@ const {
 const AskedPointSchema = new Schema({
     origin: {
         required: true,
-        type: String
+        type: String,
+        unique: true
     },
     destiny: {
         required: true,
-        type: String
+        type: String,
+        unique: true
     },
     startAt: {
         required: true,

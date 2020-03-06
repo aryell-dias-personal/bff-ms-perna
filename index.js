@@ -1,48 +1,43 @@
-const { getGoogleMatrix } = require('./src/services/map');
-const AgentSchema = require('./src/models/agent');
 const AskedPointSchema = require('./src/models/askedPoint');
-const LocalNamesArraySchema = require('./src/models/localNamesArray');
+const UserSchema = require('./src/models/user');
+const { mountGetRoutePayload, publishInTopic } = require('./src/helpers/start-helper');
 const { generate } = require('./src/config/connection');
-const { PubSub } = require('@google-cloud/pubsub');
 
 let conn = null;
-const pubsub = new PubSub();
 
 module.exports.startRouteCalculation = async (req, res) => {
     try {
         console.log("BODY: \n" + JSON.stringify(req.body));
         conn = await generate(conn);
-        const { startTime, endTime } = req.body;
-
-        const agents = await AgentSchema.find({
-            startAt: { $gte: startTime, $lte: endTime },
-        }).lean();
-        const askedPoints = await AskedPointSchema.find({
-            startAt: { $gte: startTime, $lte: endTime },
-        }).lean();
-        const { value: localNames } = await LocalNamesArraySchema.findOneAndUpdate(
-            { used: false }, { used: true }, { new: true }
-        ).lean();
-
-        const adjacencyMatrix = await getGoogleMatrix(localNames);
-
-        const getRoutePayload = {
-            agents,
-            matrix: {
-                askedPoints,
-                localNames,
-                adjacencyMatrix
-            }
-        };
+        const getRoutePayload = await mountGetRoutePayload(req.body)
         console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
-
-        const topic = pubsub.topic(process.env.PERNA_TOPIC);
-        const messageBuffer = Buffer.from(JSON.stringify(getRoutePayload), 'utf8');
-        await topic.publish(messageBuffer);
-
+        publishInTopic(getRoutePayload)
         res.status(200).send({
             message: "success",
             getRoutePayload: JSON.stringify(getRoutePayload)
+        });
+    } catch (error) {
+        console.log(`ERROR: \n ${error}`);
+        res.status(500).send({ message: "error", error: error.message });
+    }
+}
+
+module.exports.insertAskedPoint = async (req, res) => {
+    try {
+        console.log("BODY: \n" + JSON.stringify(req.body));
+        conn = await generate(conn);
+        const { askedPoint, userId } = req.body;
+
+        const newAskedPoint = new AskedPointSchema(askedPoint);
+        await newAskedPoint.save();
+
+        await UserSchema.update({ _id: userId }, {
+            $push: { askedPoints: newAskedPoint }
+        });
+
+        res.status(200).send({
+            message: "success",
+            newAskedPoint: JSON.stringify(newAskedPoint)
         });
     } catch (error) {
         console.log(`ERROR: \n ${error}`);

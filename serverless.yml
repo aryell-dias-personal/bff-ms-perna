@@ -57,6 +57,10 @@ functions:
     handler: startRouteCalculation
     events:
       - http: startRouteCalculation
+  insertAskedPoint:
+    handler: insertAskedPoint
+    events:
+      - http: insertAskedPoint
   getRoutes:
     memorySize: 512
     timeout: 540s

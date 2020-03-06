@@ -13,6 +13,9 @@ const AgentSchema = new Schema({
         required: true,
         type: String
     },
+    route: [{
+        type: String
+    }],
     startAt: {
         required: true,
         type: Number
