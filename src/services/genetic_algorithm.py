@@ -4,11 +4,12 @@ from src.helpers.crossover import Crossover
 from src.helpers.mutation import Mutation 
 from src.helpers.selection import Selection
 from src.helpers.transform import binaryTroughtMatrix
+from functools import lru_cache
+import json
 
 class GeneticAlgorithm:
     
     def __init__(self, antSystem):
-        self.cache = {}
         self.antSystem = antSystem
         self.selection = Selection()
         self.crossover = Crossover()
@@ -50,7 +51,7 @@ class GeneticAlgorithm:
         numAgents = list(range(self.numAgents))
         chosedIndex = np.random.choice(numAgents, self.numRoutes)
         chromosome = [[int(chosedIndex[i] == j) for j in numAgents] for i in range(self.numRoutes)]
-        return list(np.array(list(zip(*chromosome))).flatten())
+        return np.array(list(zip(*chromosome))).flatten().tolist()
 
     def initialize(self, matrix, agents, populationSize = 100):
         self.matrix = matrix
@@ -72,28 +73,32 @@ class GeneticAlgorithm:
             for child in children:
                 yield child
 
+    @lru_cache(maxsize=None)
+    def getAntSystemCost(self, agentAndbinaryList):
+        agent, binaryList = json.loads(agentAndbinaryList)
+        antColonyArgs = binaryTroughtMatrix(**self.matrix, agentGarage=agent[AGENT_FIELDS.GARAGE] , binaryList=binaryList)
+        if len(antColonyArgs[MATRIX_FIELDS.LOCAL_NAMES]) :
+            self.antSystem.initialize(**antColonyArgs, agent=agent)
+            self.antSystem.run()
+            _ , cost = self.antSystem.bestSolution
+        else:
+            cost = 0
+        return cost
+
+    @lru_cache(maxsize=None)
     def fitness_function(self, individual):
+        individual = json.loads(individual)
         if not self.isValidChromosome(individual):
             return -1
         costs = []
-        cacheName = ''.join([str(gene) for gene in individual])
-        if(cacheName not in self.cache.keys()):
-            for i in range(1, self.numAgents+1):
-                binaryList = individual[(i-1)*self.numRoutes: i*self.numRoutes]
-                antColonyArgs = binaryTroughtMatrix(**self.matrix, agentGarage=self.agents[i-1][AGENT_FIELDS.GARAGE] , binaryList=binaryList)
-                if len(antColonyArgs[MATRIX_FIELDS.LOCAL_NAMES]) :
-                    self.antSystem.initialize(**antColonyArgs, agent=self.agents[i-1])
-                    self.antSystem.run()
-                    _ , cost = self.antSystem.bestSolution
-                else:
-                    cost = 0
-                costs.append(cost)
-            self.cache[cacheName] = len(costs)/sum(costs)
-        return self.cache[cacheName]
+        for i in range(1, self.numAgents+1):
+            binaryList = individual[(i-1)*self.numRoutes: i*self.numRoutes]
+            costs.append(self.getAntSystemCost(json.dumps([self.agents[i-1], binaryList])))
+        return len(costs)/sum(costs)
 
     def run(self, numInter=100):
         for i in range(numInter):
-            fitness_values = [self.fitness_function(individual) for individual in self.population]
+            fitness_values = [self.fitness_function(json.dumps(individual)) for individual in self.population]
             survivors = self.selection(self.population, fitness_values)
             if not isinstance(survivors, list):
                 survivors = survivors.tolist()

@@ -34,10 +34,10 @@ class AntSystem:
         self.initPheromone()
 
     def extractEncodedNames(self, garageName):
-        self.encodedNames = [garageName] + list(np.unique([[
+        self.encodedNames = [garageName] + np.unique([[
             point[MATRIX_FIELDS.ORIGIN], 
             point[MATRIX_FIELDS.DESTINY] 
-        ] for point in self.askedPoints]).flatten())
+        ] for point in self.askedPoints]).flatten().tolist()
 
     def extractOrigensAndDestines(self):
         if len(self.askedPoints) :
@@ -125,7 +125,7 @@ class AntSystem:
                         if self.decodeInd(self.origens[i]) == self.decodeInd(local)
                     ]
         possibleChoices  = list(set(possibleChoices) - set(currentRoute))
-        return list(np.unique(possibleChoices))
+        return np.unique(possibleChoices).tolist()
 
     def getCurrentTime(self, currentRoute):
         time = 0

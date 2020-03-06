@@ -3,10 +3,10 @@ from src.helpers.constants import MATRIX_FIELDS
 
 def binaryTroughtMatrix(adjacencyMatrix, localNames, askedPoints, agentGarage, binaryList):
     askedPoints = [point for binary, point in zip(binaryList, askedPoints) if binary]
-    validLocalNames = list(np.unique([list([agentGarage.split('-')[0]] + [
+    validLocalNames = (np.unique([list([agentGarage.split('-')[0]] + [
         point[MATRIX_FIELDS.ORIGIN].split('-')[0], 
         point[MATRIX_FIELDS.DESTINY].split('-')[0]
-    ]) for point in askedPoints]).flatten())
+    ]) for point in askedPoints]).flatten()).tolist()
     if(len(validLocalNames)):
         indexes, localNames = zip(*[(i, name) for i, name in enumerate(localNames) if name in validLocalNames])
     else:

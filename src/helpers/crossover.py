@@ -14,7 +14,7 @@ class Crossover:
         ])
 
     def encodeChromosome(self, chromosome):
-        return list(np.array(list(zip(*chromosome))).flatten())
+        return np.array(list(zip(*chromosome))).flatten().tolist()
 
     def decodeChromosome(self, chromosome):
         return list(zip(*[chromosome[(i-1)*self.numRoutes: i*self.numRoutes] for i in range(1, self.numAgents+1)]))
