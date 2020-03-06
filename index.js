@@ -3,15 +3,16 @@ const AgentSchema = require('./src/models/agent');
 const AskedPointSchema = require('./src/models/askedPoint');
 const LocalNamesArraySchema = require('./src/models/localNamesArray');
 const { generate } = require('./src/config/connection');
-const aws = require('./src/services/aws');
+const { PubSub } = require('@google-cloud/pubsub');
 
 let conn = null;
+const pubsub = new PubSub();
 
-module.exports.startRouteCalculation = async (event, context, callback) => {
+module.exports.startRouteCalculation = async (req, res) => {
     try {
-        console.log("EVENT: \n" + JSON.stringify(event, null, 2))
+        console.log("BODY: \n" + JSON.stringify(req.body));
         conn = await generate(conn);
-        const { startTime, endTime } = JSON.parse(event.body);
+        const { startTime, endTime } = req.body;
 
         const agents = await AgentSchema.find({
             startAt: { $gte: startTime, $lte: endTime },
@@ -33,19 +34,15 @@ module.exports.startRouteCalculation = async (event, context, callback) => {
                 adjacencyMatrix
             }
         };
-        console.log(`GET_ROUTE_PAYLOAD: \n ${getRoutePayload}`, null, 2);
+        console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
 
-        await aws.sendMessage(getRoutePayload, process.env.CALCULATE_ROUTE);
-        console.log("PUTTED_ON_QUEUE");
-        return {
-            statusCode: 200,
-            body: JSON.stringify(getRoutePayload)
-        };
+        const topic = pubsub.topic(process.env.PERNA_TOPIC);
+        const messageBuffer = Buffer.from(JSON.stringify(getRoutePayload), 'utf8');
+        await topic.publish(messageBuffer);
+
+        res.status(200).send("success");
     } catch (error) {
-        console.log(`ERROR: \n ${error}`, null, 2);
-        return {
-            statusCode: 500,
-            body: JSON.stringify(error)
-        };
+        console.log(`ERROR: \n ${error}`);
+        res.status(500).send("error");
     }
 }

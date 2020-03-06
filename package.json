@@ -9,13 +9,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/pubsub": "^1.6.0",
     "mongoose": "^5.9.3",
     "request": "^2.88.2"
   },
   "devDependencies": {
     "serverless": "^1.64.0",
+    "serverless-google-cloudfunctions": "^2.4.1",
     "serverless-offline": "^5.12.1",
-    "serverless-iam-roles-per-function": "^2.0.2",
     "serverless-offline-python": "^3.22.1",
     "serverless-pseudo-parameters": "^2.5.0",
     "serverless-python-requirements": "^5.1.0"

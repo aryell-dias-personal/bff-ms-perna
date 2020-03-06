@@ -104,5 +104,5 @@ class GeneticAlgorithm:
             for _ in range(self.population_size - len(survivors)):
                 newElement = self.mutation(next(gen))
                 new_population.append(newElement)
-            # print(*list(zip(self.population, fitness_values))[0])
+            print(*list(zip(self.population, fitness_values))[0])
             self.population = new_population

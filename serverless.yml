@@ -1,15 +1,16 @@
 service: perna-app
 
 provider:
-  name: aws
+  name: google
   stage: dev
-  timeout: 30
   region: ${self:custom.regions.${self:provider.stage}}
-  versionFunctions: false
+  project: perna-app
+  credentials: ~/.gcloud/keyfile.json
   environment:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
     SERVICE: ${self:service}
+    PERNA_TOPIC: perna-topic-${self:provider.stage}
     DB_NAME: ${self:service}-${self:provider.stage}
     CALCULATE_ROUTE: CALCULATE_ROUTE_${self:provider.stage}
     MONGO_URL:  ${self:custom.MONGO_URL.${self:provider.stage}}
@@ -23,10 +24,10 @@ custom:
   serverless-offline:
     port: 1337
   regions:
-    prd: us-east-1
-    hml: us-east-1
-    dev: us-east-1
-    test: us-east-1
+    prd: us-central1
+    hml: us-central1
+    dev: us-central1
+    test: us-central1
   GOOGLE_URL: 
     dev: 'https://maps.googleapis.com/maps/api'
     prd: 'https://maps.googleapis.com/maps/api'
@@ -40,48 +41,28 @@ custom:
     prd: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
     hml: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
 
-resources:
-  Resources:
-    CalculateRouteQueue:
-      Type: "AWS::SQS::Queue"
-      Properties:
-        QueueName: CALCULATE_ROUTE_${self:provider.stage}
-        VisibilityTimeout: 900
-
-functions:
-  startRouteCalculation:
-    runtime: nodejs10.x
-    handler: index.startRouteCalculation
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - sqs:*
-        Resource: '*'
-    events:
-      - http:
-          path: startRouteCalculation
-          method: post
-  getRoutes:
-    runtime: python3.6
-    handler: index.getRoutes
-    timeout: 900
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - sqs:*
-        Resource: '*'
-    events:
-      - sqs:
-          arn: arn:aws:sqs:${self:provider.region}:#{AWS::AccountId}:CALCULATE_ROUTE_${self:provider.stage}
-          batchSize: 10
 plugins:
+  - serverless-google-cloudfunctions
   - serverless-python-requirements
   - serverless-pseudo-parameters
-  - serverless-iam-roles-per-function
 
 package:
   exclude:
-    - database/**
-    - package-lock.json
+    - node_modules/**
     - .gitignore
-    - .vscode/**
+    - .git/**
+
+functions:
+  startRouteCalculation:
+    handler: startRouteCalculation
+    events:
+      - http: startRouteCalculation
+  getRoutes:
+    memorySize: 512
+    timeout: 540s
+    runtime: python37
+    handler: getRoutes
+    events:
+      - event:
+          eventType: providers/cloud.pubsub/eventTypes/topic.publish
+          resource: 'projects/${self:provider.project, ""}/topics/perna-topic-${self:provider.stage}'

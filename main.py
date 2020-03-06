@@ -2,21 +2,16 @@ from src.services.ant_colony import AntSystem
 from src.services.genetic_algorithm import GeneticAlgorithm
 from src.helpers.constants import MATRIX_FIELDS
 from src.helpers.transform import binaryTroughtMatrix
-from src.services.aws import deleteMessage
+import base64
 import json
-import os
 
 def getRoutes(event, context):
-    geneticSystemArgs, receiptHandle = getInfoFromEvent(event)
+    print(event)
+    geneticSystemArgs = json.loads(base64.b64decode(event['data']).decode('utf-8'))
+    print(geneticSystemArgs)
     antSystem = AntSystem()
     geneticSystem = GeneticAlgorithm(antSystem)
     geneticSystem.initialize(**geneticSystemArgs)
     geneticSystem.run()
-    deleteMessage(receiptHandle, os.environ['CALCULATE_ROUTE'])
     result = geneticSystem.decodeChromosome(geneticSystem.population[0])
-    return result
-
-def getInfoFromEvent(event):
-    print(event)
-    records = event['Records']
-    return json.loads(records[0]['body']), records[0]['receiptHandle']
+    print(result)

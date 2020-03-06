@@ -9,5 +9,5 @@ module.exports.getGoogleMatrix = async (localNames) => {
                 return [distance.value, duration.value];
         });
     });
-    return adjacencyMatrix
+    return adjacencyMatrix;
 }
