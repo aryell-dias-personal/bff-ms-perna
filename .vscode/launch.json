@@ -10,38 +10,6 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "NODE startRouteCalculation",
-            "console": "integratedTerminal",
-            "protocol": "inspector",
-            "program": "${workspaceRoot}/node_modules/serverless/bin/serverless",
-            "args": [
-                "invoke",
-                "local",
-                "--function",
-                "startRouteCalculation",
-                "-d",
-                "$(cat ${workspaceRoot}/mocks/startRouteCalculation-args.json)"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "PYTHON getRoute",
-            "console": "integratedTerminal",
-            "protocol": "inspector",
-            "program": "${workspaceRoot}/node_modules/serverless/bin/serverless",
-            "args": [
-                "invoke",
-                "local",
-                "--function",
-                "getRoutes",
-                "-d",
-                "$(cat ${workspaceRoot}/mocks/getRoutes-args.json)"
-            ]
         }
     ]
 }

@@ -16,8 +16,6 @@
   "devDependencies": {
     "serverless": "^1.64.0",
     "serverless-google-cloudfunctions": "^2.4.1",
-    "serverless-offline": "^5.12.1",
-    "serverless-offline-python": "^3.22.1",
     "serverless-pseudo-parameters": "^2.5.0",
     "serverless-python-requirements": "^5.1.0"
   }
