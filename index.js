@@ -40,9 +40,15 @@ module.exports.startRouteCalculation = async (req, res) => {
         const messageBuffer = Buffer.from(JSON.stringify(getRoutePayload), 'utf8');
         await topic.publish(messageBuffer);
 
-        res.status(200).send("success");
+        res.status(200).send({
+            message: "success",
+            getRoutePayload: JSON.stringify(getRoutePayload)
+        });
     } catch (error) {
         console.log(`ERROR: \n ${error}`);
-        res.status(500).send("error");
+        res.status(500).send({
+            message: "error",
+            error: error.message
+        });
     }
 }
