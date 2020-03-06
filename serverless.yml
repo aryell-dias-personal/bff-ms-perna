@@ -57,6 +57,18 @@ functions:
     handler: startRouteCalculation
     events:
       - http: startRouteCalculation
+  insertUser:
+    handler: insertUser
+    events:
+      - http: insertUser
+  insertProvider:
+    handler: insertProvider
+    events:
+      - http: insertProvider
+  insertAgent:
+    handler: insertAgent
+    events:
+      - http: insertAgent
   insertAskedPoint:
     handler: insertAskedPoint
     events:
