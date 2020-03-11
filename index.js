@@ -100,3 +100,27 @@ module.exports.insertUser = async (req, res) => {
         });
     }
 }
+
+module.exports.getUser = async (req, res) => {
+    try {
+        console.log("BODY: \n" + req.body);
+        conn = await generate(conn);
+
+        const { userId } = JSON.parse(req.body);
+
+        const user = await UserSchema.findById(userId, { 
+            email: 1, isProvider: 1 
+        });
+
+        res.status(200).send({
+            message: "success",
+            user: JSON.stringify(user)
+        });
+    } catch (error) {
+        console.log(`ERROR: \n ${error}`);
+        res.status(500).send({
+            message: "error",
+            error: error.message
+        });
+    }
+}
