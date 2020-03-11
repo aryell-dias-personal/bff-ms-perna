@@ -1,6 +1,5 @@
 const AskedPointSchema = require('./src/models/askedPoint');
 const UserSchema = require('./src/models/user');
-const ProviderSchema = require('./src/models/provider');
 const AgentSchema = require('./src/models/agent');
 const { mountGetRoutePayload, publishInTopic } = require('./src/helpers/start-helper');
 const { generate } = require('./src/config/connection');
@@ -26,9 +25,9 @@ module.exports.startRouteCalculation = async (req, res) => {
 
 module.exports.insertAskedPoint = async (req, res) => {
     try {
-        console.log("BODY: \n" + JSON.stringify(req.body));
+        console.log("BODY: \n" + req.body);
         conn = await generate(conn);
-        const { askedPoint, userId } = req.body;
+        const { askedPoint, userId } = JSON.parse(req.body);
 
         const newAskedPoint = new AskedPointSchema(askedPoint);
         await newAskedPoint.save();
@@ -52,14 +51,19 @@ module.exports.insertAskedPoint = async (req, res) => {
 
 module.exports.insertAgent = async (req, res) => {
     try {
-        console.log("BODY: \n" + JSON.stringify(req.body));
+        console.log("BODY: \n" + req.body);
         conn = await generate(conn);
-        const { agent, providerId } = req.body;
+        const { agent, userId } = JSON.parse(req.body);
+
+        const { isProvider } = await UserSchema.findOne(
+            { _id: userId }, { isProvider: 1 }
+        );
+        if (!isProvider) throw new Error("Deve ser um provider")
 
         const newAgent = new AgentSchema(agent);
         await newAgent.save();
 
-        await UserSchema.update({ _id: providerId }, {
+        await UserSchema.update({ _id: userId }, {
             $push: { agents: newAgent }
         });
 
@@ -76,33 +80,12 @@ module.exports.insertAgent = async (req, res) => {
     }
 }
 
-module.exports.insertProvider = async (req, res) => {
-    try {
-        console.log("BODY: \n" + JSON.stringify(req.body));
-        conn = await generate(conn);
-
-        const newProvider = new ProviderSchema(req.body);
-        await newProvider.save();
-
-        res.status(200).send({
-            message: "success",
-            newProvider: JSON.stringify(newProvider)
-        });
-    } catch (error) {
-        console.log(`ERROR: \n ${error}`);
-        res.status(500).send({
-            message: "error",
-            error: error.message
-        });
-    }
-}
-
 module.exports.insertUser = async (req, res) => {
     try {
-        console.log("BODY: \n" + JSON.stringify(req.body));
+        console.log("BODY: \n" + req.body);
         conn = await generate(conn);
 
-        const newUser = new UserSchema(req.body);
+        const newUser = new UserSchema(JSON.parse(req.body));
         await newUser.save();
 
         res.status(200).send({

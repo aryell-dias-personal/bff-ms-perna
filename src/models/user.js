@@ -5,9 +5,22 @@ const {
 } = mongoose;
 
 const UserSchema = new Schema({
+    email: {
+        type: String,
+        required: true, 
+        unique: true
+    },
+    isProvider: {
+        type: Boolean,
+        default: false
+    },
     askedPoints: [{
         type: mongoose.Types.ObjectId,
         ref: 'AskedPoint'
+    }], 
+    agents: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'Agent'
     }]
 }, {
     timestamps: true

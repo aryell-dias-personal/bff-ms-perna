@@ -61,10 +61,6 @@ functions:
     handler: insertUser
     events:
       - http: insertUser
-  insertProvider:
-    handler: insertProvider
-    events:
-      - http: insertProvider
   insertAgent:
     handler: insertAgent
     events:
