@@ -2,6 +2,7 @@ const AskedPointSchema = require('./src/models/askedPoint');
 const UserSchema = require('./src/models/user');
 const AgentSchema = require('./src/models/agent');
 const { mountGetRoutePayload, publishInTopic } = require('./src/helpers/start-helper');
+const { MESSAGES } = require('./src/helpers/constants');
 const { generate } = require('./src/config/connection');
 
 let conn = null;
@@ -27,12 +28,12 @@ module.exports.insertAskedPoint = async (req, res) => {
     try {
         console.log("BODY: \n" + req.body);
         conn = await generate(conn);
-        const { askedPoint, userId } = JSON.parse(req.body);
+        const { askedPoint, email } = JSON.parse(req.body);
 
         const newAskedPoint = new AskedPointSchema(askedPoint);
         await newAskedPoint.save();
 
-        await UserSchema.update({ _id: userId }, {
+        await UserSchema.update({ email: email }, {
             $push: { askedPoints: newAskedPoint }
         });
 
@@ -53,17 +54,17 @@ module.exports.insertAgent = async (req, res) => {
     try {
         console.log("BODY: \n" + req.body);
         conn = await generate(conn);
-        const { agent, userId } = JSON.parse(req.body);
+        const { agent, email } = JSON.parse(req.body);
 
         const { isProvider } = await UserSchema.findOne(
-            { _id: userId }, { isProvider: 1 }
+            { email: email }, { isProvider: 1 }
         );
         if (!isProvider) throw new Error("Deve ser um provider")
 
         const newAgent = new AgentSchema(agent);
         await newAgent.save();
 
-        await UserSchema.update({ _id: userId }, {
+        await UserSchema.update({ email: email }, {
             $push: { agents: newAgent }
         });
 
@@ -80,6 +81,7 @@ module.exports.insertAgent = async (req, res) => {
     }
 }
 
+// "{"garage":"-7.839407438374191, -34.90821573883295","places":30,"startAt":26428389.0,"endAt":26428440.0}"
 module.exports.insertUser = async (req, res) => {
     try {
         console.log("BODY: \n" + req.body);
@@ -106,12 +108,13 @@ module.exports.getUser = async (req, res) => {
         console.log("BODY: \n" + req.body);
         conn = await generate(conn);
 
-        const { userId } = JSON.parse(req.body);
+        const { email } = JSON.parse(req.body);
 
-        const user = await UserSchema.findById(userId, { 
-            email: 1, isProvider: 1 
-        });
-
+        const user = await UserSchema.findOne(
+            { email }, 
+            { isProvider: 1 }
+        );
+        if(!user) throw new Error(MESSAGES.NO_USER);
         res.status(200).send({
             message: "success",
             user: JSON.stringify(user)
