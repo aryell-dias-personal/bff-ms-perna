@@ -5,7 +5,7 @@ provider:
   stage: dev
   region: ${self:custom.regions.${self:provider.stage}}
   project: perna-app
-  credentials: ~/.gcloud/keyfile.json
+  credentials: .gcloud/keyfile.json
   environment:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
@@ -19,7 +19,6 @@ provider:
 
 custom:
   pythonRequirements:
-    dockerizePip: true
     fileName: requirements/${self:provider.stage}.txt
   serverless-offline:
     port: 1337
