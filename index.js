@@ -33,7 +33,7 @@ module.exports.insertAskedPoint = async (req, res) => {
         const newAskedPoint = new AskedPointSchema(askedPoint);
         await newAskedPoint.save();
 
-        await UserSchema.update({ email: email }, {
+        await UserSchema.update({ email }, {
             $push: { askedPoints: newAskedPoint }
         });
 
@@ -57,14 +57,14 @@ module.exports.insertAgent = async (req, res) => {
         const { agent, email } = JSON.parse(req.body);
 
         const { isProvider } = await UserSchema.findOne(
-            { email: email }, { isProvider: 1 }
+            { email }, { isProvider: 1 }
         );
         if (!isProvider) throw new Error("Deve ser um provider")
 
         const newAgent = new AgentSchema(agent);
         await newAgent.save();
 
-        await UserSchema.update({ email: email }, {
+        await UserSchema.update({ email }, {
             $push: { agents: newAgent }
         });
 
@@ -81,7 +81,6 @@ module.exports.insertAgent = async (req, res) => {
     }
 }
 
-// "{"garage":"-7.839407438374191, -34.90821573883295","places":30,"startAt":26428389.0,"endAt":26428440.0}"
 module.exports.insertUser = async (req, res) => {
     try {
         console.log("BODY: \n" + req.body);

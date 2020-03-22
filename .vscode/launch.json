@@ -18,11 +18,19 @@
             ]
         },
         {
-            "name": "Python: Arquivo Atual",
-            "type": "python",
+            "type": "node",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
+            "name": "insertUser",
+            // "program": "${workspaceRoot}/node_modules/.bin/sls",
+            "program": "${workspaceRoot}/node_modules/serverless/bin/serverless",
+            "args": [
+                "invoke",
+                "local",
+                "-f",
+                "insertUser",
+                "--data",
+                "dummyData"
+            ]
         }
     ]
 }

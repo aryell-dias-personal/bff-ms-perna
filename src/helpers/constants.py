@@ -14,7 +14,7 @@ class AGENT_FIELDS:
     END_AT = "endAt"
 
 class ENCODED_NAMES:
-    SEPARETOR = '-'
+    SEPARETOR = '<{*_-_*}>'
 
 class ANT_CNFG:
     TIME_THRESHOLD = 1000

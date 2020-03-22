@@ -1,11 +1,12 @@
 const { getGoogleMatrix } = require('../services/map');
 const AskedPointSchema = require('../models/askedPoint');
+const { ENCODED_NAMES } = require('../helpers/constants');
 const AgentSchema = require('../models/agent');
 const { PubSub } = require('@google-cloud/pubsub');
 const pubsub = new PubSub();
 
 const decodeName = (encodedNames) => {
-    return encodedNames.map(encodedName => encodedName.split('-').shift())
+    return encodedNames.map(encodedName => encodedName.split(ENCODED_NAMES.SEPARETOR).shift())
 }
 
 const getLocalNames = (askedPoints) => {

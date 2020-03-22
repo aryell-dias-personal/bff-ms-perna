@@ -1,12 +1,15 @@
 import numpy as np
-from src.helpers.constants import MATRIX_FIELDS
+from src.helpers.constants import MATRIX_FIELDS, ENCODED_NAMES
 
 def binaryTroughtMatrix(adjacencyMatrix, localNames, askedPoints, agentGarage, binaryList):
     askedPoints = [point for binary, point in zip(binaryList, askedPoints) if binary]
-    validLocalNames = (np.unique([list([agentGarage.split('-')[0]] + [
-        point[MATRIX_FIELDS.ORIGIN].split('-')[0], 
-        point[MATRIX_FIELDS.DESTINY].split('-')[0]
-    ]) for point in askedPoints]).flatten()).tolist()
+    validLocalNames = (np.unique([
+        list([
+            agentGarage.split(ENCODED_NAMES.SEPARETOR)[0]] + [
+                point[MATRIX_FIELDS.ORIGIN].split(ENCODED_NAMES.SEPARETOR)[0], 
+                point[MATRIX_FIELDS.DESTINY].split(ENCODED_NAMES.SEPARETOR)[0]
+        ])
+    for point in askedPoints]).flatten()).tolist()
     if(len(validLocalNames)):
         indexes, localNames = zip(*[(i, name) for i, name in enumerate(localNames) if name in validLocalNames])
     else:

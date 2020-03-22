@@ -14,9 +14,8 @@
     "request": "^2.88.2"
   },
   "devDependencies": {
-    "serverless": "^1.64.0",
+    "serverless": "1.17.0",
     "serverless-google-cloudfunctions": "^2.4.1",
-    "serverless-pseudo-parameters": "^2.5.0",
-    "serverless-python-requirements": "^5.1.0"
+    "serverless-pseudo-parameters": "^2.5.0"
   }
 }

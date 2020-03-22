@@ -4,5 +4,8 @@ module.exports = {
     },
     MESSAGES: {
         NO_USER: 'No user whit this email'
+    },
+    ENCODED_NAMES: {   
+        SEPARETOR: '<{*_-_*}>'
     }
 }

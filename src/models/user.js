@@ -7,8 +7,7 @@ const {
 const UserSchema = new Schema({
     email: {
         type: String,
-        required: true, 
-        unique: true
+        required: true
     },
     isProvider: {
         type: Boolean,
@@ -26,4 +25,11 @@ const UserSchema = new Schema({
     timestamps: true
 });
 
+const exportedUserSchema = mongoose.models.User || mongoose.model('User', UserSchema);
+UserSchema.path('email').validate(async (email)=>{
+    const anotherUser = await exportedUserSchema.findOne({ email }).lean();
+    // if(anotherUser)
+    //     throw new Error("Já existe outro usuario com este email");
+    return !anotherUser;
+}, "Já existe outro usuario com este email");
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
