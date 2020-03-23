@@ -11,6 +11,7 @@
   "dependencies": {
     "@google-cloud/pubsub": "^1.6.0",
     "mongoose": "^5.9.3",
+    "randomstring": "^1.1.5",
     "request": "^2.88.2"
   },
   "devDependencies": {

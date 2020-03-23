@@ -3,7 +3,9 @@ const UserSchema = require('./src/models/user');
 const AgentSchema = require('./src/models/agent');
 const { mountGetRoutePayload, publishInTopic } = require('./src/helpers/start-helper');
 const { MESSAGES } = require('./src/helpers/constants');
+const { ENCODED_NAMES } = require('./src/helpers/constants');
 const { generate } = require('./src/config/connection');
+const randomstring = require("randomstring");
 
 let conn = null;
 
@@ -34,7 +36,11 @@ module.exports.insertAskedPoint = async (req, res) => {
         await newAskedPoint.save();
 
         await UserSchema.update({ email }, {
-            $push: { askedPoints: newAskedPoint }
+            $push: { askedPoints: {
+                ...newAskedPoint,
+                origin: `${newAskedPoint.origin}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
+                destiny: `${newAskedPoint.destiny}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
+            } }
         });
 
         res.status(200).send({
@@ -61,7 +67,10 @@ module.exports.insertAgent = async (req, res) => {
         );
         if (!isProvider) throw new Error("Deve ser um provider")
 
-        const newAgent = new AgentSchema(agent);
+        const newAgent = new AgentSchema({
+            ...agent,
+            garage: `${agent.garage}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
+        });
         await newAgent.save();
 
         await UserSchema.update({ email }, {
