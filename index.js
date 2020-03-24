@@ -32,15 +32,15 @@ module.exports.insertAskedPoint = async (req, res) => {
         conn = await generate(conn);
         const { askedPoint, email } = JSON.parse(req.body);
 
-        const newAskedPoint = new AskedPointSchema(askedPoint);
+        const newAskedPoint = new AskedPointSchema({
+            ...askedPoint,
+            origin: `${askedPoint.origin}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
+            destiny: `${askedPoint.destiny}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
+        });
         await newAskedPoint.save();
 
         await UserSchema.update({ email }, {
-            $push: { askedPoints: {
-                ...newAskedPoint,
-                origin: `${newAskedPoint.origin}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
-                destiny: `${newAskedPoint.destiny}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
-            } }
+            $push: { askedPoints: newAskedPoint }
         });
 
         res.status(200).send({
