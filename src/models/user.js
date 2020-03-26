@@ -9,6 +9,13 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
+    photoUrl: {
+        type: String
+    },
+    name: {
+        type: String,
+        required: true
+    },
     isProvider: {
         type: Boolean,
         default: false

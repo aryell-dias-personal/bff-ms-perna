@@ -95,12 +95,12 @@ module.exports.insertUser = async (req, res) => {
         console.log("BODY: \n" + req.body);
         conn = await generate(conn);
 
-        const newUser = new UserSchema(JSON.parse(req.body));
-        await newUser.save();
+        const user = new UserSchema(JSON.parse(req.body));
+        await user.save();
 
         res.status(200).send({
             message: "success",
-            newUser: JSON.stringify(newUser)
+            user: JSON.stringify(user)
         });
     } catch (error) {
         console.log(`ERROR: \n ${error}`);
@@ -118,10 +118,7 @@ module.exports.getUser = async (req, res) => {
 
         const { email } = JSON.parse(req.body);
 
-        const user = await UserSchema.findOne(
-            { email }, 
-            { isProvider: 1 }
-        );
+        const user = await UserSchema.findOne({ email });
         if(!user) throw new Error(MESSAGES.NO_USER);
         res.status(200).send({
             message: "success",
