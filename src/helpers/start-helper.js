@@ -9,11 +9,16 @@ const decodeName = (encodedNames) => {
     return encodedNames.map(encodedName => encodedName.split(ENCODED_NAMES.SEPARETOR).shift())
 }
 
-const getLocalNames = (askedPoints) => {
-    return askedPoints.reduce((previous, current) => {
+const getLocalNames = (askedPoints, agents) => {
+    const askedLocalnames = askedPoints.reduce((previous, current) => {
         const { origin, destiny } = current;
         return Array.from(new Set(previous.concat(decodeName([origin, destiny]))))
     }, []);
+    const garageLocalnames = agents.reduce((previous, current) => {
+        const { garage } = current;
+        return Array.from(new Set(previous.concat(decodeName([garage]))))
+    }, []);
+    return Array.from(new Set(askedLocalnames.concat(garageLocalnames)));
 }
 
 module.exports.mountGetRoutePayload = async ({ startTime, endTime }) => {
@@ -23,7 +28,7 @@ module.exports.mountGetRoutePayload = async ({ startTime, endTime }) => {
     const askedPoints = await AskedPointSchema.find({
         startAt: { $gte: startTime, $lte: endTime },
     }).lean();
-    const localNames = getLocalNames(askedPoints);
+    const localNames = getLocalNames(askedPoints, agents);
 
     const adjacencyMatrix = await getGoogleMatrix(localNames);
 

@@ -2,6 +2,7 @@ const AskedPointSchema = require('./src/models/askedPoint');
 const UserSchema = require('./src/models/user');
 const AgentSchema = require('./src/models/agent');
 const { mountGetRoutePayload, publishInTopic } = require('./src/helpers/start-helper');
+const { parseLatLng } = require('./src/helpers/get-maps-data-helper');
 const { MESSAGES } = require('./src/helpers/constants');
 const { ENCODED_NAMES } = require('./src/helpers/constants');
 const { generate } = require('./src/config/connection');
@@ -34,14 +35,11 @@ module.exports.insertAskedPoint = async (req, res) => {
 
         const newAskedPoint = new AskedPointSchema({
             ...askedPoint,
+            email: email,
             origin: `${askedPoint.origin}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
             destiny: `${askedPoint.destiny}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
         });
         await newAskedPoint.save();
-
-        await UserSchema.update({ email }, {
-            $push: { askedPoints: newAskedPoint }
-        });
 
         res.status(200).send({
             message: "success",
@@ -69,13 +67,10 @@ module.exports.insertAgent = async (req, res) => {
 
         const newAgent = new AgentSchema({
             ...agent,
+            email: email,
             garage: `${agent.garage}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
         });
         await newAgent.save();
-
-        await UserSchema.update({ email }, {
-            $push: { agents: newAgent }
-        });
 
         res.status(200).send({
             message: "success",
@@ -124,6 +119,36 @@ module.exports.getUser = async (req, res) => {
             message: "success",
             user: JSON.stringify(user)
         });
+    } catch (error) {
+        console.log(`ERROR: \n ${error}`);
+        res.status(500).send({
+            message: "error",
+            error: error.message
+        });
+    }
+}
+
+module.exports.getMapsData = async (req, res) => {
+    try {
+        console.log("BODY: \n" + req.body);
+        conn = await generate(conn);
+
+        const { email, currentTime } = JSON.parse(req.body);
+
+        const currentAskedPoint = await AskedPointSchema
+            .findOne({ email, endAt: { $gt: currentTime} })
+            .sort({startAt:1}).limit(1).lean();
+
+        const currentAgent = await AgentSchema
+            .findOne({ email, endAt: { $gt: currentTime} })
+            .sort({startAt:1}).lean();
+
+        const mapsData = {
+            route: currentAgent ? currentAgent.route.map(parseLatLng) : [],
+            nextPlace: currentAgent && parseLatLng(currentAskedPoint.origin)
+        };
+
+        res.status(200).send(JSON.stringify(mapsData));
     } catch (error) {
         console.log(`ERROR: \n ${error}`);
         res.status(500).send({

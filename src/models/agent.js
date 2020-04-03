@@ -5,6 +5,14 @@ const {
 } = mongoose;
 
 const AgentSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
     places: {
         required: true,
         type: Number

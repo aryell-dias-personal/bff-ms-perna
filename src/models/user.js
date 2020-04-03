@@ -19,15 +19,7 @@ const UserSchema = new Schema({
     isProvider: {
         type: Boolean,
         default: false
-    },
-    askedPoints: [{
-        type: mongoose.Types.ObjectId,
-        ref: 'AskedPoint'
-    }], 
-    agents: [{
-        type: mongoose.Types.ObjectId,
-        ref: 'Agent'
-    }]
+    }
 }, {
     timestamps: true
 });

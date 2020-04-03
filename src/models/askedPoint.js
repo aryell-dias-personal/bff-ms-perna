@@ -5,6 +5,14 @@ const {
 } = mongoose;
 
 const AskedPointSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
     origin: {
         required: true,
         type: String,
