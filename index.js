@@ -157,3 +157,28 @@ module.exports.getMapsData = async (req, res) => {
         });
     }
 }
+
+module.exports.getHistory = async (req, res) => {
+    try {
+        console.log("BODY: \n" + req.body);
+        conn = await generate(conn);
+
+        const { email } = JSON.parse(req.body);
+
+        const askedPoints = await AskedPointSchema.find({ email }).lean();
+
+        const agents = await AgentSchema.find({ email }).lean();
+
+        const history = agents.concat(askedPoints).sort((first, second)=>{
+            return (int) (first.createdAt - second.createdAt).getTime()/1000;
+        });
+
+        res.status(200).send(JSON.stringify(history));
+    } catch (error) {
+        console.log(`ERROR: \n ${error}`);
+        res.status(500).send({
+            message: "error",
+            error: error.message
+        });
+    }
+}
