@@ -167,11 +167,17 @@ module.exports.getHistory = async (req, res) => {
 
         const askedPoints = await AskedPointSchema.find({ email }).lean();
 
+        console.log("ASKED_POINTS: \n" + askedPoints);
+
         const agents = await AgentSchema.find({ email }).lean();
 
-        const history = agents.concat(askedPoints).sort((first, second)=>{
-            return (int) (first.createdAt - second.createdAt).getTime()/1000;
+        console.log("AGENTS: \n" + agents);
+
+        const history = agents.concat(askedPoints || []).sort((first, second)=>{
+                return first.createdAt - second.createdAt;
         });
+
+        console.log("HISTORY: \n" + history);
 
         res.status(200).send(JSON.stringify(history));
     } catch (error) {
