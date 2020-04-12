@@ -104,7 +104,7 @@ module.exports.getHistory = (req, res) => handler(req, res, async ({ email })=>{
     console.log("AGENTS: \n" + agents);
 
     const history = agents.concat(askedPoints).sort((first, second)=>{
-        return first.createdAt - second.createdAt;
+        return first.endAt - second.endAt;
     });
 
     console.log("HISTORY: \n" + history);
