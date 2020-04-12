@@ -1,11 +1,13 @@
 from src.services.ant_colony import AntSystem
 from src.services.genetic_algorithm import GeneticAlgorithm
 from src.helpers.constants import MATRIX_FIELDS, DB_COLLECTIONS
-from src.helpers.db import getCollection
-from bson.objectid import ObjectId
+import firebase_admin
+from firebase_admin import firestore
 from src.helpers.transform import binaryTroughtMatrix
 import base64
 import json
+
+firebase_admin.initialize_app()
 
 def getRoutes(event, context):
     print(event)
@@ -17,9 +19,10 @@ def getRoutes(event, context):
     geneticSystem.run()
     result = geneticSystem.decodeChromosome(geneticSystem.population[0])
     print(result)
-    agentsCollection = getCollection(DB_COLLECTIONS.AGENTS)
+    db = firestore.client()
+    agentsCollection = db.collection(DB_COLLECTIONS.AGENT)
     for agent in result:
-        agentsCollection.update_one(
-            { "_id": ObjectId(agent["agent_id"]) }, 
-            { "$set" :{ "route": agent["route"]}}
+        agentsCollection.document(agent["agent_id"]).set( 
+            { "route": agent["route"]},
+            merge=True
         )

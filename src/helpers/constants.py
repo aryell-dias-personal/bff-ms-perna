@@ -20,4 +20,4 @@ class ANT_CNFG:
     TIME_THRESHOLD = 1000
 
 class DB_COLLECTIONS:
-    AGENTS= "agents"
+    AGENT= "agent"

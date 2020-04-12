@@ -1,9 +1,8 @@
 const { getGoogleMatrix } = require('../services/map');
-const AskedPointSchema = require('../models/askedPoint');
-const { ENCODED_NAMES } = require('../helpers/constants');
-const AgentSchema = require('../models/agent');
+const { ENCODED_NAMES, COLLECTION_NAMES } = require('../helpers/constants');
 const { PubSub } = require('@google-cloud/pubsub');
 const pubsub = new PubSub();
+const admin = require("firebase-admin");
 
 const decodeName = (encodedNames) => {
     return encodedNames.map(encodedName => encodedName.split(ENCODED_NAMES.SEPARETOR).shift())
@@ -21,29 +20,47 @@ const getLocalNames = (askedPoints, agents) => {
     return Array.from(new Set(askedLocalnames.concat(garageLocalnames)));
 }
 
-module.exports.mountGetRoutePayload = async ({ startTime, endTime }) => {
-    const agents = await AgentSchema.find({
-        startAt: { $gte: startTime, $lte: endTime },
-    }).lean();
-    const askedPoints = await AskedPointSchema.find({
-        startAt: { $gte: startTime, $lte: endTime },
-    }).lean();
-    const localNames = getLocalNames(askedPoints, agents);
+const parseDocs = (querySnapshot) => {
+    console.log("DOCS: "+ (querySnapshot.empty ? "EMPTY" : querySnapshot.docs))
+    return querySnapshot.empty ? [] : querySnapshot.docs.map(doc => ({
+        ...doc.data(),
+        _id: doc.id
+    }));
+}
+
+const mountGetRoutePayload = async ({ startTime, endTime }) => {
+    const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
+    const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
+    
+    const askedPoints = await askedPointsRef.where('startAt', '>=', startTime).where('startAt', '<=', endTime).get();
+    const agents = await agentsRef.where('startAt', '>=', startTime).where('startAt', '<=', endTime).get();
+    
+    const localNames = getLocalNames(
+        parseDocs(askedPoints), 
+        parseDocs(agents)
+    );
+    console.log("LOCAL_NAMES: \n" + JSON.stringify(localNames));
 
     const adjacencyMatrix = await getGoogleMatrix(localNames);
 
     return {
-        agents,
+        agents: parseDocs(agents),
         matrix: {
-            askedPoints,
+            askedPoints: parseDocs(askedPoints),
             localNames,
             adjacencyMatrix
         }
     };
 }
 
-module.exports.publishInTopic = async (getRoutePayload) => {
+const publishInTopic = async (getRoutePayload) => {
     const messageBuffer = Buffer.from(JSON.stringify(getRoutePayload), 'utf8');
     const topic = pubsub.topic(process.env.PERNA_TOPIC);
     await topic.publish(messageBuffer);
+}
+
+module.exports = {
+    publishInTopic,
+    parseDocs,
+    mountGetRoutePayload
 }

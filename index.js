@@ -1,190 +1,113 @@
-const AskedPointSchema = require('./src/models/askedPoint');
-const UserSchema = require('./src/models/user');
-const AgentSchema = require('./src/models/agent');
-const { mountGetRoutePayload, publishInTopic } = require('./src/helpers/start-helper');
+const { mountGetRoutePayload, publishInTopic, parseDocs } = require('./src/helpers/start-helper');
+const { COLLECTION_NAMES } = require('./src/helpers/constants');
 const { parseLatLng } = require('./src/helpers/get-maps-data-helper');
 const { MESSAGES } = require('./src/helpers/constants');
 const { ENCODED_NAMES } = require('./src/helpers/constants');
-const { generate } = require('./src/config/connection');
+const { handler } = require('./src/helpers/error-handler');
 const randomstring = require("randomstring");
+const admin = require("firebase-admin");
 
-let conn = null;
+admin.initializeApp();
 
-module.exports.startRouteCalculation = async (req, res) => {
-    try {
-        console.log("BODY: \n" + JSON.stringify(req.body));
-        conn = await generate(conn);
-        const getRoutePayload = await mountGetRoutePayload(req.body)
-        console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
-        publishInTopic(getRoutePayload)
-        res.status(200).send({
-            message: "success",
-            getRoutePayload: JSON.stringify(getRoutePayload)
-        });
-    } catch (error) {
-        console.log(`ERROR: \n ${error}`);
-        res.status(500).send({ message: "error", error: error.message });
-    }
-}
+module.exports.startRouteCalculation = (req, res) => handler(req, res, async (body)=>{
+    const getRoutePayload = await mountGetRoutePayload(body);
+    console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
+    await publishInTopic(getRoutePayload);
+    return { getRoutePayload: JSON.stringify(getRoutePayload) };
+});
 
-module.exports.insertAskedPoint = async (req, res) => {
-    try {
-        console.log("BODY: \n" + req.body);
-        conn = await generate(conn);
-        const { askedPoint, email } = JSON.parse(req.body);
+module.exports.insertAskedPoint = (req, res) => handler(req, res, async ({ askedPoint, email })=>{
+    const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
 
-        const newAskedPoint = new AskedPointSchema({
-            ...askedPoint,
-            email: email,
-            origin: `${askedPoint.origin}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
-            destiny: `${askedPoint.destiny}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
-        });
-        await newAskedPoint.save();
+    const newAskedPoint = {
+        ...askedPoint, email: email,
+        origin: `${askedPoint.origin}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
+        destiny: `${askedPoint.destiny}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
+    };
+    await askedPointsRef.add(newAskedPoint);
 
-        res.status(200).send({
-            message: "success",
-            newAskedPoint: JSON.stringify(newAskedPoint)
-        });
-    } catch (error) {
-        console.log(`ERROR: \n ${error}`);
-        res.status(500).send({
-            message: "error",
-            error: error.message
-        });
-    }
-}
+    return { newAskedPoint: JSON.stringify(newAskedPoint) };
+});
 
-module.exports.insertAgent = async (req, res) => {
-    try {
-        console.log("BODY: \n" + req.body);
-        conn = await generate(conn);
-        const { agent, email } = JSON.parse(req.body);
+module.exports.insertAgent = (req, res) => handler(req, res, async ({ agent, email })=>{
+    const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
+    const userQuerySnapshot = await usersRef.where('email', '==', email)
+        .where('isProvider', '==', true).limit(1).get();
+    const [ user ] = parseDocs(userQuerySnapshot);
+    if (!user) throw new Error("Deve ser um provider");
 
-        const { isProvider } = await UserSchema.findOne(
-            { email }, { isProvider: 1 }
-        );
-        if (!isProvider) throw new Error("Deve ser um provider")
+    const agentRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
+    const newAgent = {
+        ...agent, email: email,
+        garage: `${agent.garage}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
+    };
+    await agentRef.add(newAgent);
 
-        const newAgent = new AgentSchema({
-            ...agent,
-            email: email,
-            garage: `${agent.garage}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
-        });
-        await newAgent.save();
+    return { newAgent: JSON.stringify(newAgent) };
+});
 
-        res.status(200).send({
-            message: "success",
-            newAgent: JSON.stringify(newAgent)
-        });
-    } catch (error) {
-        console.log(`ERROR: \n ${error}`);
-        res.status(500).send({
-            message: "error",
-            error: error.message
-        });
-    }
-}
+module.exports.insertUser = (req, res) => handler(req, res, async (user)=>{
+    const userRef = admin.firestore().collection(COLLECTION_NAMES.USER);
+    const userQuerySnapshot = await userRef.where('email', '==', user.email)
+        .limit(1).get();
+    if(!userQuerySnapshot.empty) throw new Error(MESSAGES.USER_EXISITS);
 
-module.exports.insertUser = async (req, res) => {
-    try {
-        console.log("BODY: \n" + req.body);
-        conn = await generate(conn);
+    await userRef.add(user);
+    return { user: JSON.stringify(user) };
+});
 
-        const user = new UserSchema(JSON.parse(req.body));
-        await user.save();
+// daqui pra baixo as coisas podem ser substituidas por subscribe do firebase no flutter
+module.exports.getUser = (req, res) => handler(req, res, async ({ email })=>{
+    const userRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
+    const userQuerySnapshot = await userRef.where('email', '==', email)
+        .limit(1).get();
+    const [ user ] = parseDocs(userQuerySnapshot);
+    if(!user) throw new Error(MESSAGES.NO_USER);
 
-        res.status(200).send({
-            message: "success",
-            user: JSON.stringify(user)
-        });
-    } catch (error) {
-        console.log(`ERROR: \n ${error}`);
-        res.status(500).send({
-            message: "error",
-            error: error.message
-        });
-    }
-}
+    return { user: JSON.stringify(user) };
+});
 
-module.exports.getUser = async (req, res) => {
-    try {
-        console.log("BODY: \n" + req.body);
-        conn = await generate(conn);
+module.exports.getMapsData = (req, res) => handler(req, res, async ({ email, currentTime }) => {
+    const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT); 
+    const askedPointQuerySnapshot = await askedPointsRef.where('email', '==', email).where('endAt', '>', currentTime)
+        .orderBy('endAt').limit(1).get();
+    const [ askedPoint ] = parseDocs(askedPointQuerySnapshot);
+    
+    console.log("ASKED_POINT: " + JSON.stringify(askedPoint));
 
-        const { email } = JSON.parse(req.body);
+    const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT); 
+    const agentQuerySnapshot = await agentsRef.where('email', '==', email).where('endAt', '>', currentTime)
+        .orderBy('endAt').limit(1).get();
+    const [ agent ] = parseDocs(agentQuerySnapshot);
 
-        const user = await UserSchema.findOne({ email });
-        if(!user) throw new Error(MESSAGES.NO_USER);
-        res.status(200).send({
-            message: "success",
-            user: JSON.stringify(user)
-        });
-    } catch (error) {
-        console.log(`ERROR: \n ${error}`);
-        res.status(500).send({
-            message: "error",
-            error: error.message
-        });
-    }
-}
+    console.log("AGENT: " + JSON.stringify(agent));
 
-module.exports.getMapsData = async (req, res) => {
-    try {
-        console.log("BODY: \n" + req.body);
-        conn = await generate(conn);
+    const mapsData = {
+        route: agent && agent.route ? agent.route.map(parseLatLng) : [],
+        nextPlace: askedPoint && parseLatLng(askedPoint.origin)
+    };
 
-        const { email, currentTime } = JSON.parse(req.body);
+    return { out: mapsData };
+});
 
-        const currentAskedPoint = await AskedPointSchema
-            .findOne({ email, endAt: { $gt: currentTime} })
-            .sort({startAt:1}).limit(1).lean();
+module.exports.getHistory = (req, res) => handler(req, res, async ({ email })=>{
+    const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
+    const askedPointsQuerySnapshot = await askedPointsRef.where('email', '==', email).get();
+    const askedPoints = parseDocs(askedPointsQuerySnapshot);
+    
+    console.log("ASKED_POINTS: \n" + askedPoints);
+    
+    const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
+    const agentsQuerySnapshot = await agentsRef.where('email', '==', email).get();
+    const agents = parseDocs(agentsQuerySnapshot); 
 
-        const currentAgent = await AgentSchema
-            .findOne({ email, endAt: { $gt: currentTime} })
-            .sort({startAt:1}).lean();
+    console.log("AGENTS: \n" + agents);
 
-        const mapsData = {
-            route: currentAgent ? currentAgent.route.map(parseLatLng) : [],
-            nextPlace: currentAgent && parseLatLng(currentAskedPoint.origin)
-        };
+    const history = agents.concat(askedPoints).sort((first, second)=>{
+        return first.createdAt - second.createdAt;
+    });
 
-        res.status(200).send(JSON.stringify(mapsData));
-    } catch (error) {
-        console.log(`ERROR: \n ${error}`);
-        res.status(500).send({
-            message: "error",
-            error: error.message
-        });
-    }
-}
+    console.log("HISTORY: \n" + history);
 
-module.exports.getHistory = async (req, res) => {
-    try {
-        console.log("BODY: \n" + req.body);
-        conn = await generate(conn);
-
-        const { email } = JSON.parse(req.body);
-
-        const askedPoints = await AskedPointSchema.find({ email }).lean();
-
-        console.log("ASKED_POINTS: \n" + askedPoints);
-
-        const agents = await AgentSchema.find({ email }).lean();
-
-        console.log("AGENTS: \n" + agents);
-
-        const history = agents.concat(askedPoints || []).sort((first, second)=>{
-                return first.createdAt - second.createdAt;
-        });
-
-        console.log("HISTORY: \n" + history);
-
-        res.status(200).send(JSON.stringify(history));
-    } catch (error) {
-        console.log(`ERROR: \n ${error}`);
-        res.status(500).send({
-            message: "error",
-            error: error.message
-        });
-    }
-}
+    return { out: history };
+});

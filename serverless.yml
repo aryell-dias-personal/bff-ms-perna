@@ -16,6 +16,7 @@ provider:
     MONGO_URL:  ${self:custom.MONGO_URL.${self:provider.stage}}
     GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
     GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
+    FIREBASE_CONFIG: ./src/config/config.json
 
 custom:
   serverless-offline:
