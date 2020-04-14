@@ -1,7 +1,7 @@
 const { mountGetRoutePayload, publishInTopic, parseDocs } = require('./src/helpers/start-helper');
-const { COLLECTION_NAMES } = require('./src/helpers/constants');
-const { MESSAGES } = require('./src/helpers/constants');
-const { ENCODED_NAMES } = require('./src/helpers/constants');
+const { mountAskedPoint } = require('./src/helpers/insert-asked-helper');
+const { mountAgent } = require('./src/helpers/insert-agent-helper');
+const { COLLECTION_NAMES, ENCODED_NAMES, MESSAGES } = require('./src/helpers/constants');
 const { handler } = require('./src/helpers/error-handler');
 const randomstring = require("randomstring");
 const admin = require("firebase-admin");
@@ -17,12 +17,7 @@ module.exports.startRouteCalculation = (req, res) => handler(req, res, async (bo
 
 module.exports.insertAskedPoint = (req, res) => handler(req, res, async ({ askedPoint, email })=>{
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
-
-    const newAskedPoint = {
-        ...askedPoint, email: email,
-        origin: `${askedPoint.origin}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
-        destiny: `${askedPoint.destiny}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
-    };
+    const newAskedPoint = mountAskedPoint(askedPoint, email);
     await askedPointsRef.add(newAskedPoint);
 
     return { newAskedPoint: JSON.stringify(newAskedPoint) };
@@ -36,10 +31,7 @@ module.exports.insertAgent = (req, res) => handler(req, res, async ({ agent, ema
     if (!user) throw new Error("Deve ser um provider");
 
     const agentRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
-    const newAgent = {
-        ...agent, email: email,
-        garage: `${agent.garage}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`
-    };
+    const newAgent = mountAgent(agent, email);
     await agentRef.add(newAgent);
 
     return { newAgent: JSON.stringify(newAgent) };
