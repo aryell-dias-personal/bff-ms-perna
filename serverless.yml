@@ -70,14 +70,6 @@ functions:
     handler: insertAskedPoint
     events:
       - http: insertAskedPoint
-  getMapsData:
-    handler: getMapsData
-    events:
-      - http: getMapsData
-  getHistory:
-    handler: getHistory
-    events:
-      - http: getHistory
   getRoutes:
     memorySize: 512
     timeout: 540s

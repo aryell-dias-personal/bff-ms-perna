@@ -1,9 +1,8 @@
 const { mountGetRoutePayload, publishInTopic, parseDocs } = require('./src/helpers/start-helper');
 const { mountAskedPoint } = require('./src/helpers/insert-asked-helper');
 const { mountAgent } = require('./src/helpers/insert-agent-helper');
-const { COLLECTION_NAMES, ENCODED_NAMES, MESSAGES } = require('./src/helpers/constants');
+const { COLLECTION_NAMES, MESSAGES } = require('./src/helpers/constants');
 const { handler } = require('./src/helpers/error-handler');
-const randomstring = require("randomstring");
 const admin = require("firebase-admin");
 
 admin.initializeApp();
