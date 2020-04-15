@@ -21,3 +21,4 @@ class ANT_CNFG:
 
 class DB_COLLECTIONS:
     AGENT= "agent"
+    USER= "user"

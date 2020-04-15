@@ -62,6 +62,10 @@ functions:
     handler: getUser
     events:
       - http: getUser
+  logout:
+    handler: logout
+    events:
+      - http: logout
   insertAgent:
     handler: insertAgent
     events:

@@ -46,12 +46,32 @@ module.exports.insertUser = (req, res) => handler(req, res, async (user)=>{
     return { user: JSON.stringify(user) };
 });
 
-module.exports.getUser = (req, res) => handler(req, res, async ({ email })=>{
+module.exports.getUser = (req, res) => handler(req, res, async ({ email, messagingToken })=>{
     const userRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
     const userQuerySnapshot = await userRef.where('email', '==', email)
         .limit(1).get();
     const [ user ] = parseDocs(userQuerySnapshot);
     if(!user) throw new Error(MESSAGES.NO_USER);
+    const newMessagingTokens = [messagingToken , ...user.messagingTokens];
+    await userRef.doc(user._id).set({ messagingTokens: newMessagingTokens }, { merge: true });
 
-    return { user: JSON.stringify(user) };
+    return { user: JSON.stringify({
+        ...user,
+        messagingTokens: newMessagingTokens
+    }) };
+});
+
+module.exports.logout = (req, res) => handler(req, res, async ({ email, messagingToken })=>{
+    const userRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
+    const userQuerySnapshot = await userRef.where('email', '==', email)
+        .limit(1).get();
+    const [ user ] = parseDocs(userQuerySnapshot);
+    if(!user) throw new Error(MESSAGES.NO_USER);
+    const newMessagingTokens = user.messagingTokens.filter(token => token !== messagingToken);
+    await userRef.doc(user._id).set({ messagingTokens: newMessagingTokens }, { merge: true });
+
+    return { user: JSON.stringify({
+        ...user,
+        messagingTokens: newMessagingTokens
+    }) };
 });
