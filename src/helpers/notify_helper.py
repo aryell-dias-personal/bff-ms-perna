@@ -20,8 +20,14 @@ def notifyUser(result):
         user = usersCollection.where('email', '==', newAgent['email']).limit(1).stream().__next__().to_dict()
         for token in user['messagingTokens']:
             messages.append(
-                messaging.Message( data={
-                    'teste': 'isto é um teste',
-                }, token=token) 
+                messaging.Message( 
+                    android=messaging.AndroidConfig(
+                        notification=messaging.AndroidNotification(
+                            title='Nova Rota',
+                            body='Já calculamos sua próxima rota, vem dar uma olhada!! 😉',
+                        ),
+                    ),
+                    token=token
+                ) 
             ) 
     messaging.send_all(messages)
