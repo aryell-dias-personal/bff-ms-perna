@@ -32,13 +32,13 @@ const mountGetRoutePayload = async ({ startTime, endTime }) => {
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
     const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
     
-    const askedPoints = await askedPointsRef.where('startAt', '>=', startTime).where('startAt', '<=', endTime).get();
-    const agents = await agentsRef.where('startAt', '>=', startTime).where('startAt', '<=', endTime).get();
-    
-    const localNames = getLocalNames(
-        parseDocs(askedPoints), 
-        parseDocs(agents)
-    );
+    const askedPointsQuery = await askedPointsRef.where('startAt', '>=', startTime).where('startAt', '<=', endTime).get();
+    const agentsQuery = await agentsRef.where('startAt', '>=', startTime).where('startAt', '<=', endTime).get();
+
+    const askedPoints = parseDocs(askedPointsQuery); 
+    const agents = parseDocs(agentsQuery);
+
+    const localNames = getLocalNames(askedPoints, agents);
     console.log("LOCAL_NAMES: \n" + JSON.stringify(localNames));
 
     const adjacencyMatrix = await getGoogleMatrix(localNames);
