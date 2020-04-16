@@ -3,7 +3,7 @@ module.exports.handler = async (req, res, func) => {
         console.log("BODY: \n" + req.body);
         const body = JSON.parse(req.body);
         const data = await func(body);
-        const response = data.out || { message: "success", ...data };
+        const response = { message: "success", ...data };
         res.status(200).send(response);
     } catch (error) {
         console.log(`ERROR: \n ${error}`);

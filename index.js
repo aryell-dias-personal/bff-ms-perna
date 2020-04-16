@@ -43,7 +43,10 @@ module.exports.insertUser = (req, res) => handler(req, res, async (user)=>{
     if(!userQuerySnapshot.empty) throw new Error(MESSAGES.USER_EXISITS);
 
     await userRef.add(user);
-    return { user: JSON.stringify(user) };
+    return { user: JSON.stringify({
+        ...user,
+        messagingTokens: undefined
+    }) };
 });
 
 module.exports.getUser = (req, res) => handler(req, res, async ({ email, messagingToken })=>{
@@ -57,7 +60,7 @@ module.exports.getUser = (req, res) => handler(req, res, async ({ email, messagi
 
     return { user: JSON.stringify({
         ...user,
-        messagingTokens: newMessagingTokens
+        messagingTokens: undefined
     }) };
 });
 
@@ -72,6 +75,6 @@ module.exports.logout = (req, res) => handler(req, res, async ({ email, messagin
 
     return { user: JSON.stringify({
         ...user,
-        messagingTokens: newMessagingTokens
+        messagingTokens: undefined
     }) };
 });
