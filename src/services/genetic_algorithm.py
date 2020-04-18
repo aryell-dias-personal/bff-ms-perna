@@ -1,5 +1,5 @@
 import numpy as np
-from src.helpers.constants import MATRIX_FIELDS, AGENT_FIELDS
+from src.helpers.constants import MATRIX_FIELDS, AGENT_FIELDS, ASKED_POINT_FIELDS
 from src.helpers.crossover import Crossover 
 from src.helpers.mutation import Mutation 
 from src.helpers.selection import Selection
@@ -26,15 +26,20 @@ class GeneticAlgorithm:
                 self.antSystem.initialize(**antColonyArgs, agent=self.agents[i-1])
                 self.antSystem.run()
                 encodedRoute, _ = self.antSystem.bestSolution
+                timeList = self.antSystem.getTimeList(encodedRoute)
                 previous = None
-                for j in encodedRoute:
-                    decodedJ = self.antSystem.decodeInd(j)
-                    if(previous != decodedJ):
-                        route.append(decodedJ)
-                        previous = decodedJ
+                for localNameIndx, time in zip(encodedRoute, timeList):
+                    decodedLocalNameIndx = self.antSystem.decodeInd(localNameIndx)
+                    if(previous != decodedLocalNameIndx):
+                        route.append({
+                            "local": self.antSystem.localNames[decodedLocalNameIndx],
+                            "time": time
+                        })
+                        previous = decodedLocalNameIndx
             result.append({
-                "agent_id": self.agents[i-1][AGENT_FIELDS.ID],
-                "route": [self.antSystem.localNames[j] for j in route]
+                "agentId": self.agents[i-1][AGENT_FIELDS.ID],
+                "askedPointIds": [askedPoint[ASKED_POINT_FIELDS.ID] for askedPoint in antColonyArgs["askedPoints"]],
+                "route": route
             })
         return result
 

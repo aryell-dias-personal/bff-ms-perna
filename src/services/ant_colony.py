@@ -136,6 +136,17 @@ class AntSystem:
             time += timeSpent
         return self.startTime + time
 
+    def getTimeList(self, currentRoute):
+        time = self.startTime
+        timeList = [time]
+        for i in range(len(currentRoute)-1):
+            currentLocal = currentRoute[i]
+            nextLocal = currentRoute[(i+1) % len(currentRoute)]
+            _,_, timeSpent = self.pheromonesDistrib[self.decodeInd(currentLocal), self.decodeInd(nextLocal)]
+            time += timeSpent
+            timeList.append(time)
+        return timeList
+
     def getDesiredTime(self, currentLocal, routeLen):
         if(currentLocal == 0):
             return self.endTime if routeLen>1 else self.startTime

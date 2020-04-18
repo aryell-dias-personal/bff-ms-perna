@@ -44,9 +44,9 @@ const mountGetRoutePayload = async ({ startTime, endTime }) => {
     const adjacencyMatrix = await getGoogleMatrix(localNames);
 
     return {
-        agents: parseDocs(agents),
+        agents: agents,
         matrix: {
-            askedPoints: parseDocs(askedPoints),
+            askedPoints: askedPoints,
             localNames,
             adjacencyMatrix
         }
