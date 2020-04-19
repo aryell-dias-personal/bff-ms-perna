@@ -1,5 +1,5 @@
 const { getGoogleMatrix } = require('../services/map');
-const { ENCODED_NAMES, COLLECTION_NAMES } = require('../helpers/constants');
+const { ENCODED_NAMES, COLLECTION_NAMES, ASKED_POINT_FIELDS } = require('../helpers/constants');
 const { PubSub } = require('@google-cloud/pubsub');
 const pubsub = new PubSub();
 const admin = require("firebase-admin");
@@ -32,8 +32,10 @@ const mountGetRoutePayload = async ({ startTime, endTime }) => {
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
     const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
     
-    const askedPointsQuery = await askedPointsRef.where('startAt', '>=', startTime).where('startAt', '<=', endTime).get();
-    const agentsQuery = await agentsRef.where('startAt', '>=', startTime).where('startAt', '<=', endTime).get();
+    const askedPointsQuery = await askedPointsRef.where(ASKED_POINT_FIELDS.ASKED_START_AT, '>=', startTime)
+        .where(ASKED_POINT_FIELDS.ASKED_START_AT, '<=', endTime).get();
+    const agentsQuery = await agentsRef.where(ASKED_POINT_FIELDS.ASKED_START_AT, '>=', startTime)
+        .where(ASKED_POINT_FIELDS.ASKED_START_AT, '<=', endTime).get();
 
     const askedPoints = parseDocs(askedPointsQuery); 
     const agents = parseDocs(agentsQuery);

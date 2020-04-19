@@ -1,5 +1,5 @@
 import numpy as np
-from src.helpers.constants import MATRIX_FIELDS, AGENT_FIELDS, ENCODED_NAMES, ANT_CNFG
+from src.helpers.constants import MATRIX_FIELDS, AGENT_FIELDS, ENCODED_NAMES, ANT_CNFG, ASKED_POINT_FIELDS
 
 class AntSystem:
 
@@ -25,8 +25,8 @@ class AntSystem:
         self.numLabels = len(localNames)
         self.bestSolution = None, np.inf
         self.adjacencyMatrix = adjacencyMatrix
-        self.endTime = agent[AGENT_FIELDS.END_AT]
-        self.startTime = agent[AGENT_FIELDS.START_AT]
+        self.endTime = agent[AGENT_FIELDS.ASKED_END_AT]
+        self.startTime = agent[AGENT_FIELDS.ASKED_START_AT]
         self.bestSolutionRecord = [self.bestSolution[1]]
         self.places = agent[AGENT_FIELDS.NUMBER_OF_PLACES]
         self.extractEncodedNames(agent[AGENT_FIELDS.GARAGE])
@@ -35,15 +35,15 @@ class AntSystem:
 
     def extractEncodedNames(self, garageName):
         self.encodedNames = [garageName] + np.unique([[
-            point[MATRIX_FIELDS.ORIGIN], 
-            point[MATRIX_FIELDS.DESTINY] 
+            point[ASKED_POINT_FIELDS.ORIGIN], 
+            point[ASKED_POINT_FIELDS.DESTINY] 
         ] for point in self.askedPoints]).flatten().tolist()
 
     def extractOrigensAndDestines(self):
         if len(self.askedPoints) :
             self.origens, self.destinations = list(zip(*[
-                (self.encodedNames.index(askedPoint[MATRIX_FIELDS.ORIGIN]),
-                    self.encodedNames.index(askedPoint[MATRIX_FIELDS.DESTINY]))
+                (self.encodedNames.index(askedPoint[ASKED_POINT_FIELDS.ORIGIN]),
+                    self.encodedNames.index(askedPoint[ASKED_POINT_FIELDS.DESTINY]))
                 for askedPoint in self.askedPoints
             ]))
         else:
@@ -151,12 +151,12 @@ class AntSystem:
         if(currentLocal == 0):
             return self.endTime if routeLen>1 else self.startTime
         for askedPoint in self.askedPoints:
-            encDestIndex = self.encodedNames.index(askedPoint[MATRIX_FIELDS.DESTINY])
-            encOrigIndex = self.encodedNames.index(askedPoint[MATRIX_FIELDS.ORIGIN])
+            encDestIndex = self.encodedNames.index(askedPoint[ASKED_POINT_FIELDS.DESTINY])
+            encOrigIndex = self.encodedNames.index(askedPoint[ASKED_POINT_FIELDS.ORIGIN])
             if currentLocal == encDestIndex:
-                return askedPoint[MATRIX_FIELDS.END_AT]
+                return askedPoint[ASKED_POINT_FIELDS.ASKED_END_AT]
             elif currentLocal == encOrigIndex:
-                return askedPoint[MATRIX_FIELDS.START_AT]
+                return askedPoint[ASKED_POINT_FIELDS.ASKED_START_AT]
 
     def chooseNextLocal(self, currentRoute):
         currentLocal = currentRoute[-1]

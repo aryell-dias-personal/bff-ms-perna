@@ -1,4 +1,4 @@
-from src.helpers.constants import DB_COLLECTIONS, ENCODED_NAMES, ASKED_POINT_FIELDS, AGENT_FIELDS, USER_FIELDS, MESSAGES
+from src.helpers.constants import DB_COLLECTIONS, ENCODED_NAMES, ASKED_POINT_FIELDS, AGENT_FIELDS, USER_FIELDS, MESSAGES, ROUTE_POINT_FIELDS
 import firebase_admin
 from firebase_admin import firestore
 from firebase_admin import messaging
@@ -16,30 +16,30 @@ def decodePlace(place):
     return place.split(ENCODED_NAMES.SEPARETOR)[0]
 
 def getOriginDestinyTime(route, origin, destiny):
-    originTime = None
-    destinyTime = None
+    actualStartAt = None
+    actualEndAt = None
     for point in route:
-        if(point["local"]==decodePlace(origin)):
-            originTime = point["time"]
-        elif(point["local"]==decodePlace(destiny)):
-            destinyTime = point["time"]
-        if(originTime and destinyTime):
+        if(point[ROUTE_POINT_FIELDS.LOCAL]==decodePlace(origin)):
+            actualStartAt = point[ROUTE_POINT_FIELDS.TIME]
+        elif(point[ROUTE_POINT_FIELDS.LOCAL]==decodePlace(destiny)):
+            actualEndAt = point[ROUTE_POINT_FIELDS.TIME]
+        if(actualStartAt and actualEndAt):
             break
-    return originTime, destinyTime
+    return actualStartAt, actualEndAt
 
 def handleAskedPoint(agent, askedPointIds, askedPointsCollection, usersCollection):
     messages = []
     for askedPoint in askedPointIds:
         askedPointRef = askedPointsCollection.document(askedPoint)
         askedPoint = askedPointRef.get().to_dict()
-        originTime, destinyTime = getOriginDestinyTime(agent["route"], askedPoint["origin"], askedPoint["destiny"])
+        actualStartAt, actualEndAt = getOriginDestinyTime(agent[AGENT_FIELDS.ROUTE], askedPoint[ASKED_POINT_FIELDS.ORIGIN], askedPoint[ASKED_POINT_FIELDS.DESTINY])
         askedPointRef.set({
-            "originTime": originTime,
-            "destinyTime": destinyTime,
-            "agentId": agent["agentId"],
-            "processed": True
+            ASKED_POINT_FIELDS.ACTUAL_START_AT: actualStartAt,
+            ASKED_POINT_FIELDS.ACTUAL_END_AT: actualEndAt,
+            ASKED_POINT_FIELDS.AGENT_ID: agent[AGENT_FIELDS.ID],
+            ASKED_POINT_FIELDS.PROCESSED: True
         }, merge=True)
-        user = usersCollection.where('email', '==', askedPoint[ASKED_POINT_FIELDS.EMAIL]).limit(1).stream().__next__().to_dict()
+        user = usersCollection.where(USER_FIELDS.EMAIL, '==', askedPoint[ASKED_POINT_FIELDS.EMAIL]).limit(1).stream().__next__().to_dict()
         messages += [buildMessage(token,MESSAGES.NEW_ASKED_POINT.TITLE, MESSAGES.NEW_ASKED_POINT.BODY) for token in user[USER_FIELDS.MESSAGING_TOKENS]]
     return messages
 
@@ -50,14 +50,14 @@ def notifyUser(result):
     agentsCollection = db.collection(DB_COLLECTIONS.AGENT)
     usersCollection = db.collection(DB_COLLECTIONS.USER)
     for agent in result:
-        agentRef = agentsCollection.document(agent["agentId"])
+        agentRef = agentsCollection.document(agent[AGENT_FIELDS.ID])
         agentRef.set({ 
-            "route": agent["route"],
-            "askedPointIds": agent["askedPointIds"],
-            "processed": True
+            AGENT_FIELDS.ROUTE: agent[AGENT_FIELDS.ROUTE],
+            AGENT_FIELDS.ASKED_POINT_IDS: agent[AGENT_FIELDS.ASKED_POINT_IDS],
+            AGENT_FIELDS.PROCESSED: True
         }, merge=True)
-        messages += handleAskedPoint(agent, agent["askedPointIds"], askedPointsCollection, usersCollection)
+        messages += handleAskedPoint(agent, agent[AGENT_FIELDS.ASKED_POINT_IDS], askedPointsCollection, usersCollection)
         agent = agentRef.get().to_dict()
-        user = usersCollection.where('email', '==', agent[AGENT_FIELDS.EMAIL]).limit(1).stream().__next__().to_dict()
+        user = usersCollection.where(USER_FIELDS.EMAIL, '==', agent[AGENT_FIELDS.EMAIL]).limit(1).stream().__next__().to_dict()
         messages += [buildMessage(token,MESSAGES.NEW_ROUTE.TITLE, MESSAGES.NEW_ROUTE.BODY) for token in user[USER_FIELDS.MESSAGING_TOKENS]]
     messaging.send_all(messages)

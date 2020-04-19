@@ -1,29 +1,38 @@
 class MATRIX_FIELDS:
     LOCAL_NAMES = "localNames"
+    ADJACENCY_MATRIX= "adjacencyMatrix"
     ASKED_POINTS = "askedPoints"
-    START_AT = "startAt"
-    END_AT = "endAt"
-    ORIGIN = "origin"
-    DESTINY = "destiny"
 
 class USER_FIELDS:
     MESSAGING_TOKENS = "messagingTokens"
+    EMAIL = "email"
 
 class AGENT_FIELDS:
     ID = "_id"
     NUMBER_OF_PLACES = "places"
     GARAGE = "garage"
-    START_AT = "startAt"
+    ASKED_START_AT = "askedStartAt"
+    ASKED_END_AT = "askedEndAt"
     EMAIL = "email"
-    END_AT = "endAt"
+    ASKED_POINT_IDS = "askedPointIds"
+    ROUTE = "route"
+    PROCESSED = "processed"
+
+class ROUTE_POINT_FIELDS:
+    TIME = "time"
+    LOCAL = "local"
 
 class ASKED_POINT_FIELDS:
     ID = "_id"
     ORIGIN = "origin"
     DESTINY = "destiny"
-    START_AT = "startAt"
+    ASKED_START_AT = "askedStartAt"
+    ASKED_END_AT = "askedEndAt"
     EMAIL = "email"
-    END_AT = "endAt"
+    ACTUAL_START_AT = "actualStartAt"
+    ACTUAL_END_AT = "actualEndAt"
+    AGENT_ID = "agentId"
+    PROCESSED = "processed"
 
 class ENCODED_NAMES:
     SEPARETOR = '<{*_-_*}>'
