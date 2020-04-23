@@ -5,9 +5,11 @@ module.exports.getGoogleMatrix = async (localNames) => {
     const { rows = [] } = await distanceMatrix(localNames);
     const adjacencyMatrix = rows.map(({ elements }) => {
         return elements.map(({ distance, duration, status }) => {
+            console.log(`ADJACENCY_MATRIX_STATUS: ${status}`);
             if (status === GOOGLE_MAP_API.STATUS_OK)
                 return [distance.value, duration.value];
         });
     });
+    console.log(`ADJACENCY_MATRIX: ${adjacencyMatrix}`);
     return adjacencyMatrix;
 }
