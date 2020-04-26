@@ -1,15 +1,19 @@
-from src.helpers.constants import DB_COLLECTIONS, ENCODED_NAMES, ASKED_POINT_FIELDS, AGENT_FIELDS, USER_FIELDS, MESSAGES, ROUTE_POINT_FIELDS
+from src.helpers.constants import DB_COLLECTIONS, ENCODED_NAMES, ASKED_POINT_FIELDS, AGENT_FIELDS, USER_FIELDS, MESSAGES, ROUTE_POINT_FIELDS, TYPE
 import firebase_admin
 from firebase_admin import firestore
 from firebase_admin import messaging
 
 app = firebase_admin.initialize_app()
 
-def buildMessage(token, title, body):
+def buildMessage(token, title, body, time, nType):
     return messaging.Message( 
         android=messaging.AndroidConfig(
-            notification=messaging.AndroidNotification(title=title, body=body),
+            notification=messaging.AndroidNotification(title=title, body=body, click_action="FLUTTER_NOTIFICATION_CLICK"),
         ),
+        data={
+            "time": str(time),
+            "type": nType
+        },
         token=token
     ) 
 def decodePlace(place):
@@ -40,7 +44,7 @@ def handleAskedPoint(agent, askedPointIds, askedPointsCollection, usersCollectio
             ASKED_POINT_FIELDS.PROCESSED: True
         }, merge=True)
         user = usersCollection.where(USER_FIELDS.EMAIL, '==', askedPoint[ASKED_POINT_FIELDS.EMAIL]).limit(1).stream().__next__().to_dict()
-        messages += [buildMessage(token,MESSAGES.NEW_ASKED_POINT.TITLE, MESSAGES.NEW_ASKED_POINT.BODY) for token in user[USER_FIELDS.MESSAGING_TOKENS]]
+        messages += [buildMessage(token,MESSAGES.NEW_ASKED_POINT.TITLE, MESSAGES.NEW_ASKED_POINT.BODY, askedPoint[ASKED_POINT_FIELDS.ACTUAL_START_AT], TYPE.ASKED_POINT) for token in user[USER_FIELDS.MESSAGING_TOKENS]]
     return messages
 
 def notifyUser(result):
@@ -59,5 +63,5 @@ def notifyUser(result):
         messages += handleAskedPoint(agent, agent[AGENT_FIELDS.ASKED_POINT_IDS], askedPointsCollection, usersCollection)
         agent = agentRef.get().to_dict()
         user = usersCollection.where(USER_FIELDS.EMAIL, '==', agent[AGENT_FIELDS.EMAIL]).limit(1).stream().__next__().to_dict()
-        messages += [buildMessage(token,MESSAGES.NEW_ROUTE.TITLE, MESSAGES.NEW_ROUTE.BODY) for token in user[USER_FIELDS.MESSAGING_TOKENS]]
+        messages += [buildMessage(token,MESSAGES.NEW_ROUTE.TITLE, MESSAGES.NEW_ROUTE.BODY, agent[AGENT_FIELDS.ROUTE][0][ROUTE_POINT_FIELDS.TIME], TYPE.EXPEDIENT) for token in user[USER_FIELDS.MESSAGING_TOKENS]]
     messaging.send_all(messages)

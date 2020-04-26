@@ -22,6 +22,10 @@ class ROUTE_POINT_FIELDS:
     TIME = "time"
     LOCAL = "local"
 
+class TYPE:
+    EXPEDIENT = "EXPEDIENT"
+    ASKED_POINT = "ASKED_POINT"
+
 class ASKED_POINT_FIELDS:
     ID = "_id"
     ORIGIN = "origin"
@@ -51,4 +55,4 @@ class MESSAGES:
         BODY = 'Já calculamos sua próxima rota, vem dar uma olhada!! 😉'
    class NEW_ASKED_POINT:
         TITLE = 'Seu Pedido'
-        BODY = 'Seu pedido foi processado foi analisado, vem ver se tá tudo certo 😎'
+        BODY = 'Seu pedido foi analisado, vem ver se tá tudo certo 😎'
