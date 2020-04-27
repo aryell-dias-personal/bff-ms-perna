@@ -14,23 +14,23 @@ module.exports.startRouteCalculation = (req, res) => handler(req, res, async (bo
     return { getRoutePayload: JSON.stringify(getRoutePayload) };
 });
 
-module.exports.insertAskedPoint = (req, res) => handler(req, res, async ({ askedPoint, email })=>{
+module.exports.insertAskedPoint = (req, res) => handler(req, res, async (askedPoint)=>{
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
-    const newAskedPoint = mountAskedPoint(askedPoint, email);
+    const newAskedPoint = mountAskedPoint(askedPoint);
     await askedPointsRef.add(newAskedPoint);
 
     return { newAskedPoint: JSON.stringify(newAskedPoint) };
 });
 
-module.exports.insertAgent = (req, res) => handler(req, res, async ({ agent, email })=>{
+module.exports.insertAgent = (req, res) => handler(req, res, async (agent)=>{
     const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
-    const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', email)
+    const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.email)
         .where(USER_FIELDS.IS_PROVIDER, '==', true).limit(1).get();
     const [ user ] = parseDocs(userQuerySnapshot);
     if (!user) throw new Error(MESSAGES.MUST_BE_PROVIDER);
 
     const agentRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
-    const newAgent = mountAgent(agent, email);
+    const newAgent = mountAgent(agent);
     await agentRef.add(newAgent);
 
     return { newAgent: JSON.stringify(newAgent) };
@@ -77,4 +77,56 @@ module.exports.logout = (req, res) => handler(req, res, async ({ email, messagin
         ...user,
         messagingTokens: undefined
     }) };
+});
+
+module.exports.askNewAgent = (req, res) => handler(req, res, async ({ fromEmail, agent })=>{
+    const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
+    const toUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.email)
+        .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
+    const fromUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', fromEmail)
+        .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
+    const users = parseDocs(toUserQuerySnapshot).concat(parseDocs(fromUserQuerySnapshot));
+    console.log(`Users: ${JSON.stringify(users)}`);
+    if (!users || users.length != 2) throw new Error(MESSAGES.MUST_BE_TWO_PROVIDERS);
+    const [ toUser, fromUser ] = users;
+    if (toUser.messagingTokens.length == 0) throw new Error(MESSAGES.NO_DEVICE);
+    const promisses = toUser.messagingTokens.map(async (token) => {
+        await admin.messaging().sendToDevice(token, {
+            notification: {
+                title: "Pedido de expediente",
+                body: `O ${fromUser.name} esta te pedindo um expediente, vem dar um olhada 🔍`,
+                click_action: "FLUTTER_NOTIFICATION_CLICK"
+            },
+            data: {
+                agent: JSON.stringify(agent),
+                fromEmail
+            }
+        });
+    });
+    await Promise.all(promisses);
+    return { newAgent: agent };
+});
+
+module.exports.answerNewAgent = (req, res) => handler(req, res, async ({ fromEmail, toEmail, accepted })=>{
+    const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
+    const toUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', toEmail)
+        .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
+    const fromUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', fromEmail)
+        .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
+    const users = parseDocs(toUserQuerySnapshot).concat(parseDocs(fromUserQuerySnapshot));
+    console.log(`Users: ${JSON.stringify(users)}`);
+    if (!users || users.length != 2) throw new Error(MESSAGES.MUST_BE_TWO_PROVIDERS);
+    const [ toUser, fromUser ] = users;
+    if (toUser.messagingTokens.length == 0) throw new Error(MESSAGES.NO_DEVICE);
+    const promisses = fromUser.messagingTokens.map(async (token) => {
+        await admin.messaging().sendToDevice(token, {
+            notification: {
+                title: "Pedido de expediente",
+                body: `O ${toUser.name} ${accepted?"":"não"} aceitou seu pedindo de expediente ${accepted?"👍":"👎"}`,
+                click_action: "FLUTTER_NOTIFICATION_CLICK"
+            }
+        });
+    });
+    await Promise.all(promisses);
+    return { accepted };
 });

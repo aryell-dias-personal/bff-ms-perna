@@ -5,7 +5,9 @@ module.exports = {
     MESSAGES: {
         NO_USER: 'No user whit this email',
         USER_EXISITS: 'There is a user whit this email',
-        MUST_BE_PROVIDER: "Deve ser um provider"
+        MUST_BE_PROVIDER: "Deve ser um provider",
+        MUST_BE_TWO_PROVIDERS: "Devem haver dois providers envolvidos",
+        NO_DEVICE: "Nenhum dispositivo cadastrado",
     },
     ENCODED_NAMES: {   
         SEPARETOR: '<{*_-_*}>'

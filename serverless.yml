@@ -74,6 +74,14 @@ functions:
     handler: insertAskedPoint
     events:
       - http: insertAskedPoint
+  askNewAgent:
+    handler: askNewAgent
+    events:
+      - http: askNewAgent
+  answerNewAgent:
+    handler: answerNewAgent
+    events:
+      - http: answerNewAgent
   getRoutes:
     memorySize: 512
     timeout: 540s
