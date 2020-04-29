@@ -79,11 +79,11 @@ module.exports.logout = (req, res) => handler(req, res, async ({ email, messagin
     }) };
 });
 
-module.exports.askNewAgent = (req, res) => handler(req, res, async ({ fromEmail, agent })=>{
+module.exports.askNewAgent = (req, res) => handler(req, res, async (agent)=>{
     const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
     const toUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.email)
         .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
-    const fromUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', fromEmail)
+    const fromUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.fromEmail)
         .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
     const users = parseDocs(toUserQuerySnapshot).concat(parseDocs(fromUserQuerySnapshot));
     console.log(`Users: ${JSON.stringify(users)}`);
@@ -98,8 +98,7 @@ module.exports.askNewAgent = (req, res) => handler(req, res, async ({ fromEmail,
                 click_action: "FLUTTER_NOTIFICATION_CLICK"
             },
             data: {
-                agent: JSON.stringify(agent),
-                fromEmail
+                agent: JSON.stringify(agent)
             }
         });
     });
