@@ -58,6 +58,7 @@ def notifyUser(result):
         agentRef.set({ 
             AGENT_FIELDS.ROUTE: agent[AGENT_FIELDS.ROUTE],
             AGENT_FIELDS.ASKED_POINT_IDS: agent[AGENT_FIELDS.ASKED_POINT_IDS],
+            AGENT_FIELDS.WATCHED_BY: agent[AGENT_FIELDS.WATCHED_BY],
             AGENT_FIELDS.PROCESSED: True
         }, merge=True)
         messages += handleAskedPoint(agent, agent[AGENT_FIELDS.ASKED_POINT_IDS], askedPointsCollection, usersCollection)

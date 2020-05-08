@@ -36,9 +36,11 @@ class GeneticAlgorithm:
                             ROUTE_POINT_FIELDS.TIME: time
                         })
                         previous = decodedLocalNameIndx
+            fromEmail = self.agents[i-1][AGENT_FIELDS.FROM_EMAIL]
             result.append({
                 AGENT_FIELDS.ID: self.agents[i-1][AGENT_FIELDS.ID],
                 AGENT_FIELDS.ASKED_POINT_IDS: [askedPoint[ASKED_POINT_FIELDS.ID] for askedPoint in antColonyArgs[MATRIX_FIELDS.ASKED_POINTS]],
+                AGENT_FIELDS.WATCHED_BY: [askedPoint[ASKED_POINT_FIELDS.EMAIL] for askedPoint in antColonyArgs[MATRIX_FIELDS.ASKED_POINTS]] + ([fromEmail] if fromEmail else []),
                 AGENT_FIELDS.ROUTE: route
             })
         return result

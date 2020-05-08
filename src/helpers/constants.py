@@ -15,6 +15,8 @@ class AGENT_FIELDS:
     ASKED_END_AT = "askedEndAt"
     EMAIL = "email"
     ASKED_POINT_IDS = "askedPointIds"
+    WATCHED_BY = "watchedBy"
+    FROM_EMAIL = "fromEmail"
     ROUTE = "route"
     PROCESSED = "processed"
 
