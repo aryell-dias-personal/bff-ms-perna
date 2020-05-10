@@ -16,7 +16,8 @@ module.exports.startRouteCalculation = (req, res) => handler(req, res, async (bo
 });
 
 module.exports.insertAskedPoint = (req, res) => handler(req, res, async (askedPoint)=>{
-    if (isInsertValid(askedPoint.askedStartAt, askedPoint.askedEndAt)) throw new Error(MESSAGES.BUSY_USER);
+    const isValid = await isInsertValid(askedPoint.email, askedPoint.askedStartAt, askedPoint.askedEndAt)
+    if (!isValid) throw new Error(MESSAGES.BUSY_USER);
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
     const newAskedPoint = mountAskedPoint(askedPoint);
     await askedPointsRef.add(newAskedPoint);
@@ -30,7 +31,8 @@ module.exports.insertAgent = (req, res) => handler(req, res, async (agent)=>{
         .where(USER_FIELDS.IS_PROVIDER, '==', true).limit(1).get();
     const [ user ] = parseDocs(userQuerySnapshot);
     if (!user) throw new Error(MESSAGES.MUST_BE_PROVIDER);
-    if (isInsertValid(agent.askedStartAt, agent.askedEndAt)) throw new Error(MESSAGES.BUSY_USER);
+    const isValid = await isInsertValid(agent.email, agent.askedStartAt, agent.askedEndAt);
+    if (!isValid) throw new Error(MESSAGES.BUSY_USER);
 
     const agentRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
     const newAgent = mountAgent(agent);

@@ -21,7 +21,7 @@ const getLocalNames = (askedPoints, agents) => {
 }
 
 const parseDocs = (querySnapshot) => {
-    console.log("DOCS: "+ (querySnapshot.empty ? "EMPTY" : querySnapshot.docs))
+    console.log("DOCS: "+ (querySnapshot.empty ? "EMPTY" : JSON.stringify(querySnapshot.docs.map(doc => doc.data()))));
     return querySnapshot.empty ? [] : querySnapshot.docs.map(doc => ({
         ...doc.data(),
         _id: doc.id
