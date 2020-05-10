@@ -3,11 +3,12 @@ const { isInsertValid } = require('./src/helpers/validators');
 const { mountAskedPoint } = require('./src/helpers/insert-asked-helper');
 const { mountAgent } = require('./src/helpers/insert-agent-helper');
 const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('./src/helpers/constants');
-const { handler } = require('./src/helpers/error-handler');
+const { handler, authHandler } = require('./src/helpers/error-handler');
 const admin = require("firebase-admin");
 
 admin.initializeApp();
 
+// Será chamado por um pubSub de tempos em tempos (a noite provavelmente)
 module.exports.startRouteCalculation = (req, res) => handler(req, res, async (body)=>{
     const getRoutePayload = await mountGetRoutePayload(body);
     console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
@@ -15,7 +16,12 @@ module.exports.startRouteCalculation = (req, res) => handler(req, res, async (bo
     return { getRoutePayload: JSON.stringify(getRoutePayload) };
 });
 
-module.exports.insertAskedPoint = (req, res) => handler(req, res, async (askedPoint)=>{
+module.exports.insertAskedPoint = (req, res) => authHandler(req, res, async (askedPoint, token)=>{
+    const userData = await admin.auth().verifyIdToken(token);
+    console.log(`UID: ${userData.uid}`);
+    const loggedUser = await admin.auth().getUser(userData.uid);
+    console.log(`LOGGED_EMAIL: ${loggedUser.email}`)
+    if(loggedUser.email != askedPoint.email) throw new Error(MESSAGES.UNAUTHORIZED_USER);
     const isValid = await isInsertValid(askedPoint.email, askedPoint.askedStartAt, askedPoint.askedEndAt)
     if (!isValid) throw new Error(MESSAGES.BUSY_USER);
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
@@ -25,7 +31,12 @@ module.exports.insertAskedPoint = (req, res) => handler(req, res, async (askedPo
     return { newAskedPoint: JSON.stringify(newAskedPoint) };
 });
 
-module.exports.insertAgent = (req, res) => handler(req, res, async (agent)=>{
+module.exports.insertAgent = (req, res) => authHandler(req, res, async (agent, token)=>{
+    const userData = await admin.auth().verifyIdToken(token);
+    console.log(`UID: ${userData.uid}`);
+    const loggedUser = await admin.auth().getUser(userData.uid);
+    console.log(`LOGGED_EMAIL: ${loggedUser.email}`)
+    if(loggedUser.email != agent.email) throw new Error(MESSAGES.UNAUTHORIZED_USER);
     const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
     const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.email)
         .where(USER_FIELDS.IS_PROVIDER, '==', true).limit(1).get();

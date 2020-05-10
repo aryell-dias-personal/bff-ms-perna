@@ -4,6 +4,7 @@ module.exports = {
     },
     MESSAGES: {
         NO_USER: 'No user whit this email',
+        UNAUTHORIZED_USER: 'unauthorized user',
         USER_EXISITS: 'There is a user whit this email',
         MUST_BE_PROVIDER: "Deve ser um provider",
         BUSY_USER: "O usuário não pode ter um compromisso marcado",
