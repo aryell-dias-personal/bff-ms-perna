@@ -6,6 +6,7 @@ module.exports = {
         NO_USER: 'No user whit this email',
         USER_EXISITS: 'There is a user whit this email',
         MUST_BE_PROVIDER: "Deve ser um provider",
+        BUSY_USER: "O usuário não pode ter um compromisso marcado",
         MUST_BE_TWO_PROVIDERS: "Devem haver dois providers envolvidos",
         NO_DEVICE: "Nenhum dispositivo cadastrado",
     },
@@ -18,7 +19,14 @@ module.exports = {
         USER: 'user'
     },
     ASKED_POINT_FIELDS: {
-        ASKED_START_AT: "askedStartAt"
+        EMAIL: "email",
+        ASKED_START_AT: "askedStartAt",
+        ASKED_END_AT: "askedEndAt"
+    },
+    AGENT_FIELDS: {
+        EMAIL: "email",
+        ASKED_START_AT: "askedStartAt",
+        ASKED_END_AT: "askedEndAt"
     },
     USER_FIELDS: {
         EMAIL: "email",

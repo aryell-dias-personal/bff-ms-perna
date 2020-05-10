@@ -1,4 +1,5 @@
 const { mountGetRoutePayload, publishInTopic, parseDocs } = require('./src/helpers/start-helper');
+const { isInsertValid } = require('./src/helpers/validators');
 const { mountAskedPoint } = require('./src/helpers/insert-asked-helper');
 const { mountAgent } = require('./src/helpers/insert-agent-helper');
 const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('./src/helpers/constants');
@@ -10,11 +11,12 @@ admin.initializeApp();
 module.exports.startRouteCalculation = (req, res) => handler(req, res, async (body)=>{
     const getRoutePayload = await mountGetRoutePayload(body);
     console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
-    await publishInTopic(getRoutePayload);
+    if(getRoutePayload.agents.length && getRoutePayload.matrix.adjacencyMatrix.length) await publishInTopic(getRoutePayload);
     return { getRoutePayload: JSON.stringify(getRoutePayload) };
 });
 
 module.exports.insertAskedPoint = (req, res) => handler(req, res, async (askedPoint)=>{
+    if (isInsertValid(askedPoint.askedStartAt, askedPoint.askedEndAt)) throw new Error(MESSAGES.BUSY_USER);
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
     const newAskedPoint = mountAskedPoint(askedPoint);
     await askedPointsRef.add(newAskedPoint);
@@ -28,6 +30,7 @@ module.exports.insertAgent = (req, res) => handler(req, res, async (agent)=>{
         .where(USER_FIELDS.IS_PROVIDER, '==', true).limit(1).get();
     const [ user ] = parseDocs(userQuerySnapshot);
     if (!user) throw new Error(MESSAGES.MUST_BE_PROVIDER);
+    if (isInsertValid(agent.askedStartAt, agent.askedEndAt)) throw new Error(MESSAGES.BUSY_USER);
 
     const agentRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
     const newAgent = mountAgent(agent);
