@@ -13,7 +13,6 @@ provider:
     PERNA_TOPIC: perna-topic-${self:provider.stage}
     DB_NAME: ${self:service}-${self:provider.stage}
     CALCULATE_ROUTE: CALCULATE_ROUTE_${self:provider.stage}
-    MONGO_URL:  ${self:custom.MONGO_URL.${self:provider.stage}}
     GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
     GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
     FIREBASE_CONFIG: ./src/config/config.json
@@ -34,10 +33,6 @@ custom:
     dev: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
     prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
     hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
-  MONGO_URL:
-    dev: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
-    prd: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
-    hml: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
 
 plugins:
   - serverless-google-cloudfunctions
