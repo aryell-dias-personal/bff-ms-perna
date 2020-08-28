@@ -9,12 +9,13 @@ import json
 
 class GeneticAlgorithm:
     
-    def __init__(self, antSystem):
+    def __init__(self, antSystem, fitnessCallback=None):
         self.antSystem = antSystem
         self.selection = Selection()
         self.crossover = Crossover()
         self.mutation = Mutation()
         self.gene_set = [0,1]
+        self.fitnessCallback = fitnessCallback or (lambda *args, **kwargs: None)
 
     def decodeChromosome(self, chromosome):
         result = []
@@ -103,9 +104,10 @@ class GeneticAlgorithm:
             costs.append(self.getAntSystemCost(json.dumps([self.agents[i-1], binaryList])))
         return len(costs)/sum(costs)
 
-    def run(self, numInter=100):
-        for i in range(numInter):
+    def run(self, numIter=100):
+        for i in range(numIter):
             fitness_values = [self.fitness_function(json.dumps(individual)) for individual in self.population]
+            self.fitnessCallback(dict(iteration=i, fitnessValues=fitness_values, numIter=numIter))
             survivors = self.selection(self.population, fitness_values)
             if not isinstance(survivors, list):
                 survivors = survivors.tolist()
