@@ -17,22 +17,8 @@ provider:
     GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
     FIREBASE_CONFIG: ./src/config/config.json
 
-custom:
-  serverless-offline:
-    port: 1337
-  regions:
-    prd: us-central1
-    hml: us-central1
-    dev: us-central1
-    test: us-central1
-  GOOGLE_URL: 
-    dev: 'https://maps.googleapis.com/maps/api'
-    prd: 'https://maps.googleapis.com/maps/api'
-    hml: 'https://maps.googleapis.com/maps/api'
-  GOOGLE_CREDENTIAL: 
-    dev: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
-    prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
-    hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
+functions: ${file(ymls/functions.yml)}
+custom: ${file(ymls/custom.yml)}
 
 plugins:
   - serverless-google-cloudfunctions
@@ -43,46 +29,3 @@ package:
     - node_modules/**
     - .gitignore
     - .git/**
-
-functions:
-  startRouteCalculation:
-    handler: startRouteCalculation
-    events:
-      - http: startRouteCalculation
-  insertUser:
-    handler: insertUser
-    events:
-      - http: insertUser
-  getUser:
-    handler: getUser
-    events:
-      - http: getUser
-  logout:
-    handler: logout
-    events:
-      - http: logout
-  insertAgent:
-    handler: insertAgent
-    events:
-      - http: insertAgent
-  insertAskedPoint:
-    handler: insertAskedPoint
-    events:
-      - http: insertAskedPoint
-  askNewAgent:
-    handler: askNewAgent
-    events:
-      - http: askNewAgent
-  answerNewAgent:
-    handler: answerNewAgent
-    events:
-      - http: answerNewAgent
-  getRoutes:
-    memorySize: 512
-    timeout: 540s
-    runtime: python37
-    handler: getRoutes
-    events:
-      - event:
-          eventType: providers/cloud.pubsub/eventTypes/topic.publish
-          resource: 'projects/${self:provider.project, ""}/topics/perna-topic-${self:provider.stage}'
