@@ -1,0 +1,33 @@
+startRouteCalculation:
+  handler: startRouteCalculation
+  events:
+    - http: startRouteCalculation
+insertUser:
+  handler: insertUser
+  events:
+    - http: insertUser
+getUser:
+  handler: getUser
+  events:
+    - http: getUser
+logout:
+  handler: logout
+  events:
+    - http: logout
+insertAgent:
+  handler: insertAgent
+  events:
+    - http: insertAgent
+insertAskedPoint:
+  handler: insertAskedPoint
+  events:
+    - http: insertAskedPoint
+askNewAgent:
+  handler: askNewAgent
+  events:
+    - http: askNewAgent
+answerNewAgent:
+  handler: answerNewAgent
+  events:
+    - http: answerNewAgent
+
