@@ -82,12 +82,4 @@ functions:
     handler: answerNewAgent
     events:
       - http: answerNewAgent
-  getRoutes:
-    memorySize: 512
-    timeout: 540s
-    runtime: python37
-    handler: getRoutes
-    events:
-      - event:
-          eventType: providers/cloud.pubsub/eventTypes/topic.publish
-          resource: 'projects/${self:provider.project, ""}/topics/perna-topic-${self:provider.stage}'
+
