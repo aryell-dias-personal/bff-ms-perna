@@ -9,10 +9,11 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 // TODO: Será chamado por um pubSub de tempos em tempos, usando a biblioteca de daniel (a noite provavelmente)
+// TODO: utilizar do cloud tasks para executar processamento da inteligência: 
+// https://www.npmjs.com/package/@google-cloud/tasks e excluir pubsub
 module.exports.startRouteCalculation = (req, res) => handler(req, res, async (body)=>{
     const getRoutePayload = await mountGetRoutePayload(body);
     console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
-    // TODO: criar subscriber para chamar o appengine
     if(getRoutePayload.agents.length && getRoutePayload.matrix.adjacencyMatrix.length) await publishInTopic(getRoutePayload);
     return { getRoutePayload: JSON.stringify(getRoutePayload) };
 });
