@@ -8,10 +8,11 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-// Será chamado por um pubSub de tempos em tempos (a noite provavelmente)
+// Será chamado por um pubSub de tempos em tempos, usando a biblioteca de daniel (a noite provavelmente)
 module.exports.startRouteCalculation = (req, res) => handler(req, res, async (body)=>{
     const getRoutePayload = await mountGetRoutePayload(body);
     console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
+    // criar subscriber para chamar o appengine
     if(getRoutePayload.agents.length && getRoutePayload.matrix.adjacencyMatrix.length) await publishInTopic(getRoutePayload);
     return { getRoutePayload: JSON.stringify(getRoutePayload) };
 });

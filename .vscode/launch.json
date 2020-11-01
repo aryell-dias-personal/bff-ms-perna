@@ -16,6 +16,24 @@
             "--target=insertUser"
         ],
         "port": 9229
+      },
+      {
+        "name": "insertUser: 8080",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "runtimeExecutable": "node",
+        "env": {
+          "GOOGLE_APPLICATION_CREDENTIALS":"C:/Users/aryel/.gcloud/keyfile.json",
+          "GOOGLE_API_CREDENTIAL": "AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w",
+          "GOOGLE_API_URL": "https://maps.googleapis.com/maps/api"
+        },
+        "runtimeArgs": [
+            "--inspect",
+            "node_modules/@google-cloud/functions-framework",
+            "--target=startRouteCalculation"
+        ],
+        "port": 9229
       }
     ]
   }
