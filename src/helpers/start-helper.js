@@ -1,8 +1,15 @@
 const { getGoogleMatrix } = require('../services/map');
 const { ENCODED_NAMES, COLLECTION_NAMES, ASKED_POINT_FIELDS } = require('../helpers/constants');
-const { PubSub } = require('@google-cloud/pubsub');
-const pubsub = new PubSub();
+const { CloudTasksClient } = require('@google-cloud/tasks');
+
 const admin = require("firebase-admin");
+const client = new CloudTasksClient();
+
+const {
+    REGION,
+    PERNA_QUEUE,
+    PROJECT
+} = process.env;
 
 const decodeName = (encodedNames) => {
     return encodedNames.map(encodedName => encodedName.split(ENCODED_NAMES.SEPARETOR).shift())
@@ -55,14 +62,47 @@ const mountGetRoutePayload = async ({ startTime, endTime }) => {
     };
 }
 
-const publishInTopic = async (getRoutePayload) => {
-    const messageBuffer = Buffer.from(JSON.stringify(getRoutePayload), 'utf8');
-    const topic = pubsub.topic(process.env.PERNA_TOPIC);
-    await topic.publish(messageBuffer);
+const listQueues = async () => {
+    const parent = client.locationPath(PROJECT, REGION);
+    const queues = await client.listQueues({parent});
+    return queues.map((queue) => queue.name)
+}
+
+const createQueue = async () => {
+    return await client.createQueue({
+        parent: client.locationPath(PROJECT, REGION),
+        queue: {
+          name: client.queuePath(PROJECT, REGION, PERNA_QUEUE),
+          appEngineHttpQueue: {
+            appEngineRoutingOverride: {
+              service: 'default'
+            },
+          },
+        },
+    });
+}
+
+const enqueue = async (payload, inSeconds=10) => {
+    const request = {
+        parent: client.queuePath(PROJECT, REGION, PERNA_QUEUE),
+        task: {
+            appEngineHttpRequest: {
+                httpMethod: 'POST',
+                relativeUri: '/',
+                body: Buffer.from(payload || {}).toString('base64')
+            },
+            scheduleTime: {
+                seconds: inSeconds + Date.now() / 1000
+            }
+        },
+    };
+    return await client.createTask(request);
 }
 
 module.exports = {
-    publishInTopic,
+    enqueue,
+    listQueues,
+    createQueue,
     parseDocs,
     mountGetRoutePayload
 }

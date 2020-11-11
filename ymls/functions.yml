@@ -1,7 +1,16 @@
 startRouteCalculation:
-  handler: startRouteCalculation
+  handler: cronJobHandler
   events:
-    - http: startRouteCalculation
+    - event:
+        eventType: providers/cloud.pubsub/eventTypes/topic.publish
+        resource: 'projects/${self:provider.project, ""}/topics/TASK_JEC_JOB_${self:provider.stage}'
+        schedule: '0 0 * * *'
+        timeZone: 'UTC'
+        target:
+          pubsubTarget:
+            topicName: 'projects/${self:provider.project, ""}/topics/TASK_JEC_JOB_${self:provider.stage}'
+            attributes:
+              date: '0'
 insertUser:
   handler: insertUser
   events:
@@ -30,4 +39,3 @@ answerNewAgent:
   handler: answerNewAgent
   events:
     - http: answerNewAgent
-

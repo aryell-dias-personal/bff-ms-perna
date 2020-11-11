@@ -1,4 +1,4 @@
-const { mountGetRoutePayload, publishInTopic, parseDocs } = require('./src/helpers/start-helper');
+const { mountGetRoutePayload, enqueue, listQueues, createQueue, parseDocs } = require('./src/helpers/start-helper');
 const { isInsertValid } = require('./src/helpers/validators');
 const { mountAskedPoint } = require('./src/helpers/insert-asked-helper');
 const { mountAgent } = require('./src/helpers/insert-agent-helper');
@@ -7,15 +7,24 @@ const { handler, authHandler } = require('./src/helpers/error-handler');
 const admin = require("firebase-admin");
 
 admin.initializeApp();
+const { PERNA_QUEUE } = process.env;
 
-// TODO: Será chamado por um pubSub de tempos em tempos, usando a biblioteca de daniel (a noite provavelmente)
-// TODO: utilizar do cloud tasks para executar processamento da inteligência: 
-// https://www.npmjs.com/package/@google-cloud/tasks e excluir pubsub
 module.exports.startRouteCalculation = (req, res) => handler(req, res, async (body)=>{
     const getRoutePayload = await mountGetRoutePayload(body);
     console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
-    if(getRoutePayload.agents.length && getRoutePayload.matrix.adjacencyMatrix.length) await publishInTopic(getRoutePayload);
-    return { getRoutePayload: JSON.stringify(getRoutePayload) };
+    let taskResponse;
+    if (getRoutePayload.agents.length && getRoutePayload.matrix.adjacencyMatrix.length) {
+        const queueNames = await listQueues();
+        console.log('QUEUE_NAMES: \n' + JSON.stringify(queueNames));
+        if (!queueNames.includes(PERNA_QUEUE)) {
+            await createQueue();
+        }
+        taskResponse = await enqueue(getRoutePayload);
+    }
+    return { 
+        getRoutePayload: JSON.stringify(getRoutePayload),
+        taskResponse
+    };
 });
 
 module.exports.insertAskedPoint = (req, res) => authHandler(req, res, async (askedPoint, token)=>{

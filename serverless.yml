@@ -9,8 +9,9 @@ provider:
   environment:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
+    PROJECT: ${self:provider.project}
     SERVICE: ${self:service}
-    PERNA_TOPIC: perna-topic-${self:provider.stage}
+    PERNA_QUEUE: perna-queue-${self:provider.stage}
     DB_NAME: ${self:service}-${self:provider.stage}
     CALCULATE_ROUTE: CALCULATE_ROUTE_${self:provider.stage}
     GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
@@ -22,7 +23,7 @@ custom: ${file(ymls/custom.yml)}
 
 plugins:
   - serverless-google-cloudfunctions
-  - serverless-pseudo-parameters
+  - serverless-google-cronjobs
 
 package:
   exclude:
