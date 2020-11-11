@@ -1,5 +1,5 @@
 const { getGoogleMatrix } = require('../services/map');
-const { ENCODED_NAMES, COLLECTION_NAMES, ASKED_POINT_FIELDS } = require('../helpers/constants');
+const { ENCODED_NAMES, COLLECTION_NAMES, ASKED_POINT_FIELDS, APP_ENGINE } = require('../helpers/constants');
 const { CloudTasksClient } = require('@google-cloud/tasks');
 
 const admin = require("firebase-admin");
@@ -75,7 +75,7 @@ const createQueue = async () => {
           name: client.queuePath(PROJECT, REGION, PERNA_QUEUE),
           appEngineHttpQueue: {
             appEngineRoutingOverride: {
-              service: 'default'
+              service: APP_ENGINE.SERVICE
             },
           },
         },
