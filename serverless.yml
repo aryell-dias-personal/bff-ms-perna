@@ -2,7 +2,8 @@ service: perna-app
 
 provider:
   name: google
-  stage: dev
+  runtime: nodejs10
+  stage: ${opt:stage, 'dev'}
   region: ${self:custom.regions.${self:provider.stage}}
   project: perna-app
   credentials: .gcloud/keyfile.json

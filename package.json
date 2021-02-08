@@ -17,7 +17,6 @@
   "devDependencies": {
     "serverless": "^1.77.1",
     "serverless-google-cronjobs": "^1.0.0",
-    "serverless-google-cloudfunctions": "^3.0.0",
-    "serverless-pseudo-parameters": "^2.5.0"
+    "serverless-google-cloudfunctions": "^3.0.0"
   }
 }

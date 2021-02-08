@@ -1,8 +1,8 @@
 regions:
-  prd: us-central1
-  hml: us-central1
-  dev: us-central1
-  test: us-central1
+  prd: us-east1
+  hml: us-east1
+  dev: us-east1
+  test: us-east1
 GOOGLE_URL: 
   dev: 'https://maps.googleapis.com/maps/api'
   prd: 'https://maps.googleapis.com/maps/api'
