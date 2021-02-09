@@ -3,7 +3,7 @@ const { isInsertValid } = require('./src/helpers/validators');
 const { mountAskedPoint } = require('./src/helpers/insert-asked-helper');
 const { mountAgent } = require('./src/helpers/insert-agent-helper');
 const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('./src/helpers/constants');
-const { handler, authHandler } = require('./src/helpers/error-handler');
+const { handler, authHandler, eventHandler } = require('./src/helpers/error-handler');
 const admin = require("firebase-admin");
 
 admin.initializeApp();
