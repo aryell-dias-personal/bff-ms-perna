@@ -23,7 +23,7 @@ module.exports.handler = async (req, res, func) => {
     }
 }
 
-module.exports.eventHandler =  async (event, context) => {
+module.exports.eventHandler =  async (event, context, func) => {
     try {
         console.log("EVENT: \n", { event, context });
         const body = getInfoFromPubSubEvent(event);

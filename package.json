@@ -11,12 +11,13 @@
   "dependencies": {
     "@google-cloud/tasks": "^2.1.2",
     "firebase-admin": "^9.3.0",
+    "js-base64": "^3.6.0",
     "randomstring": "^1.1.5",
     "request": "^2.88.2"
   },
   "devDependencies": {
-    "serverless": "^1.77.1",
-    "serverless-google-cronjobs": "^1.0.0",
-    "serverless-google-cloudfunctions": "^3.0.0"
+    "serverless": "^2.23.0",
+    "serverless-google-cloudfunctions": "^3.0.0",
+    "serverless-google-cronjobs": "^1.0.0"
   }
 }

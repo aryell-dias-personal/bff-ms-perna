@@ -9,7 +9,7 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 const { PERNA_QUEUE } = process.env;
 
-module.exports.startRouteCalculation = (req, res) => handler(req, res, async (body)=>{
+module.exports.startRouteCalculation = (event, context) => eventHandler(event, context, async (body)=>{
     const getRoutePayload = await mountGetRoutePayload(body);
     console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
     let taskResponse;
