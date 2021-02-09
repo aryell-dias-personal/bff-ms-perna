@@ -1,9 +1,15 @@
-const { RETURN_MESSAGES } = require('../helpers/constants');
+const { RETURN_MESSAGES } = require("../helpers/constants");
+const { Base64 } = require("js-base64");
+
+const getInfoFromPubSubEvent = event => {
+    console.log(`BODY: \n ${event["data"]}`);
+    return event["data"] ? JSON.parse(Base64.decode(event["data"])) : null;
+};
 
 module.exports.handler = async (req, res, func) => {
     try {
+        console.log(`BODY: \n ${req.body}`);
         const body = JSON.parse(req.body);
-        console.log("BODY: \n", body);
         const data = await func(body);
         const response = { message: RETURN_MESSAGES.SUCCESS, ...data };
         console.log("FINAL RESULT \n", { response });
@@ -21,7 +27,6 @@ module.exports.eventHandler =  async (event, context) => {
     try {
         console.log("EVENT: \n", { event, context });
         const body = getInfoFromPubSubEvent(event);
-        console.log("BODY: \n", body);
         const data = await func(body);
         const response = { message: RETURN_MESSAGES.SUCCESS, ...data };
         console.log("FINAL RESULT \n", { response });
@@ -32,8 +37,8 @@ module.exports.eventHandler =  async (event, context) => {
 
 module.exports.authHandler = async (req, res, func) => {
     try {
+        console.log(`BODY: \n ${req.body}`);
         const body = JSON.parse(req.body);
-        console.log("BODY: \n", body);
         const headers = req.headers;
         console.log("HEADERS: \n", req.headers);
         const data = await func(body, headers.authorization);
