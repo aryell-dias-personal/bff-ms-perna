@@ -8,12 +8,12 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 const { PERNA_QUEUE } = process.env;
-
-module.exports.startRouteCalculation = (event, context) => eventHandler(event, context, async (body)=>{
-    const getRoutePayload = await mountGetRoutePayload(body);
+    
+module.exports.startRouteCalculation = (event, context) => eventHandler(event, context, async ()=>{
+    const getRoutePayload = await mountGetRoutePayload();
     console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
     let taskResponse;
-    if (getRoutePayload.agents.length && getRoutePayload.matrix.adjacencyMatrix.length) {
+    if (getRoutePayload.agents.length && getRoutePayload.matrix.askedPoints.length && getRoutePayload.matrix.askedPoints.length) {
         const queueNames = await listQueues();
         console.log('QUEUE_NAMES: \n' + JSON.stringify(queueNames));
         if (!queueNames.includes(PERNA_QUEUE)) {
