@@ -1,6 +1,6 @@
-const { getGoogleMatrix } = require('../services/map');
-const { ENCODED_NAMES, COLLECTION_NAMES, ASKED_POINT_FIELDS, APP_ENGINE } = require('../helpers/constants');
+const { COLLECTION_NAMES, ASKED_POINT_FIELDS, APP_ENGINE } = require('../helpers/constants');
 const { CloudTasksClient } = require('@google-cloud/tasks');
+const { Base64 } = require("js-base64");
 
 const admin = require("firebase-admin");
 const client = new CloudTasksClient();
@@ -8,24 +8,9 @@ const client = new CloudTasksClient();
 const {
     REGION,
     PERNA_QUEUE,
-    PROJECT
+    PROJECT,
+    INTEL_URL
 } = process.env;
-
-const decodeName = (encodedNames) => {
-    return encodedNames.map(encodedName => encodedName.split(ENCODED_NAMES.SEPARETOR).shift())
-}
-
-const getLocalNames = (askedPoints, agents) => {
-    const askedLocalnames = askedPoints.reduce((previous, current) => {
-        const { origin, destiny } = current;
-        return Array.from(new Set(previous.concat(decodeName([origin, destiny]))))
-    }, []);
-    const garageLocalnames = agents.reduce((previous, current) => {
-        const { garage } = current;
-        return Array.from(new Set(previous.concat(decodeName([garage]))))
-    }, []);
-    return Array.from(new Set(askedLocalnames.concat(garageLocalnames)));
-}
 
 const parseDocs = (querySnapshot) => {
     console.log("DOCS: "+ (querySnapshot.empty ? "EMPTY" : JSON.stringify(querySnapshot.docs.map(doc => doc.data()))));
@@ -35,7 +20,13 @@ const parseDocs = (querySnapshot) => {
     }));
 }
 
-const mountGetRoutePayload = async ({ startTime, endTime }) => {
+const mountGetRoutePayload = async () => {
+    const time = new Date();
+    time.setHours(0,0,0,0);
+
+    const startTime = time.setDate(time.getDate() + 1)/1000;
+    const endTime = time.setDate(time.getDate() + 1)/1000;
+
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
     const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
     
@@ -47,25 +38,34 @@ const mountGetRoutePayload = async ({ startTime, endTime }) => {
     const askedPoints = parseDocs(askedPointsQuery); 
     const agents = parseDocs(agentsQuery);
 
-    const localNames = getLocalNames(askedPoints, agents);
-    console.log("LOCAL_NAMES: \n" + JSON.stringify(localNames));
-
-    const adjacencyMatrix = await getGoogleMatrix(localNames);
-
     return {
         agents: agents,
         matrix: {
             askedPoints: askedPoints,
-            localNames,
-            adjacencyMatrix
+            // TODO: como pegar a região???
+            region: [
+                "Goiana, PE, BR",
+                "Itapissuma, PE, BR",
+                "Itamaracá, PE, BR",
+                "Igarassu, PE, BR",
+                "Abreu e Lima, PE, BR",
+                "Paulista, PE, BR",
+                "Olinda, PE, BR",
+                "Recife, PE, BR"
+            ]
         }
     };
 }
 
 const listQueues = async () => {
     const parent = client.locationPath(PROJECT, REGION);
-    const queues = await client.listQueues({parent});
-    return queues.map((queue) => queue.name)
+    const [queues] = await client.listQueues({parent});
+    return queues.map((queue) => {
+        if(queue && queue.name) {
+            return queue.name.split('/').pop();
+        }
+        return '';
+    });
 }
 
 const createQueue = async () => {
@@ -86,17 +86,19 @@ const enqueue = async (payload, inSeconds=10) => {
     const request = {
         parent: client.queuePath(PROJECT, REGION, PERNA_QUEUE),
         task: {
-            appEngineHttpRequest: {
+            httpRequest: {
                 httpMethod: 'POST',
-                relativeUri: '/',
-                body: Buffer.from(payload || {}).toString('base64')
+                url: INTEL_URL,
+                body: Base64.encode(JSON.stringify(payload))
             },
             scheduleTime: {
                 seconds: inSeconds + Date.now() / 1000
             }
         },
     };
-    return await client.createTask(request);
+    const [response] = await client.createTask(request);
+    console.log(`Created task ${response.name}`);
+    return response;
 }
 
 module.exports = {

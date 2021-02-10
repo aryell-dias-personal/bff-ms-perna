@@ -11,7 +11,7 @@ GOOGLE_CREDENTIAL:
   dev: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
   prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
   hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
-MONGO_URL:
-  dev: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
-  prd: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
-  hml: 'mongodb+srv://root:pernaApp00@pernaapp-c7hs8.mongodb.net/test?retryWrites=true&w=majority'
+INTEL_URL:
+  dev: 'https://perna-app.appspot.com'
+  prd: 'https://perna-app.appspot.com'
+  hml: 'https://perna-app.appspot.com'
