@@ -16,9 +16,11 @@ module.exports.isInsertValid = async (email, start, end) =>  {
     const agents = parseDocs(agentsSnapshot);
     const event = askedPoints.concat(agents);
     const eventConflicts = event.filter(({ askedStartAt, askedEndAt })=>{
-        return (askedStartAt <= start && start <= askedEndAt)
+        return (askedStartAt != null && askedEndAt != null)
+            && ((askedStartAt <= start && start <= askedEndAt)
             || (askedStartAt <= end && end <= askedEndAt)
-            || (start <= askedStartAt && askedEndAt <= end)
+            || (start <= askedStartAt && askedEndAt <= end))
     });
+    console.log("EVENT_CONFLICTS", JSON.stringify(eventConflicts));
     return !eventConflicts.length;
 }
