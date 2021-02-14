@@ -11,6 +11,7 @@ module.exports = {
         USER_EXISITS: 'There is a user whit this email',
         MUST_BE_PROVIDER: 'Deve ser um provider',
         BUSY_USER: 'O usuário não pode ter um compromisso marcado',
+        INVALID_START_END: 'A hora de inicio deve ser menor que a de fim',
         MUST_BE_TWO_PROVIDERS: 'Devem haver dois providers envolvidos',
         NO_DEVICE: 'Nenhum dispositivo cadastrado',
     },

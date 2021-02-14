@@ -1,8 +1,11 @@
-const { COLLECTION_NAMES, ASKED_POINT_FIELDS, AGENT_FIELDS } = require('../helpers/constants');
+const { COLLECTION_NAMES, ASKED_POINT_FIELDS, AGENT_FIELDS, MESSAGES } = require('../helpers/constants');
 const { parseDocs } = require('./start-helper');
 const admin = require("firebase-admin");
 
 module.exports.isInsertValid = async (email, start, end) =>  {
+    if(start != null && end != null && start > end) {
+        throw new Error(MESSAGES.INVALID_START_END);
+    }
     const now = Date.now();
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
     const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
