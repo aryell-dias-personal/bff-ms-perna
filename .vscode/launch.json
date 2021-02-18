@@ -2,23 +2,7 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "insertUser: 8080",
-        "type": "node",
-        "request": "launch",
-        "cwd": "${workspaceFolder}",
-        "runtimeExecutable": "node",
-        "env": {
-          "GOOGLE_APPLICATION_CREDENTIALS":"C:/Users/aryel/.gcloud/keyfile.json"
-        },
-        "runtimeArgs": [
-            "--inspect",
-            "node_modules/@google-cloud/functions-framework",
-            "--target=insertUser"
-        ],
-        "port": 9229
-      },
-      {
-        "name": "insertUser: 8080",
+        "name": "startRouteCalculation: 8080",
         "type": "node",
         "request": "launch",
         "cwd": "${workspaceFolder}",
@@ -31,7 +15,8 @@
         "runtimeArgs": [
             "--inspect",
             "node_modules/@google-cloud/functions-framework",
-            "--target=startRouteCalculation"
+            "--target=startRouteCalculation",
+            "--signature-type=event"
         ],
         "port": 9229
       }

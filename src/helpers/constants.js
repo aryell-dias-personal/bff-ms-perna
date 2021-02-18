@@ -25,11 +25,15 @@ module.exports = {
     },
     ASKED_POINT_FIELDS: {
         EMAIL: 'email',
+        DATE: 'date',
+        QUEUE: 'queue',
         ASKED_START_AT: 'askedStartAt',
         ASKED_END_AT: 'askedEndAt'
     },
     AGENT_FIELDS: {
         EMAIL: 'email',
+        DATE: 'date',
+        QUEUE: 'queue',
         ASKED_START_AT: 'askedStartAt',
         ASKED_END_AT: 'askedEndAt'
     },

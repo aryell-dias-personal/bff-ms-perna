@@ -1,4 +1,4 @@
-const { mountGetRoutePayload, enqueue, listQueues, createQueue, parseDocs } = require('./src/helpers/start-helper');
+const { mountGetRoutePayload, enqueue, listQueues, createQueue, parseDocs, updatePernaQueues } = require('./src/helpers/start-helper');
 const { isInsertValid } = require('./src/helpers/validators');
 const { mountAskedPoint } = require('./src/helpers/insert-asked-helper');
 const { mountAgent } = require('./src/helpers/insert-agent-helper');
@@ -10,6 +10,7 @@ admin.initializeApp();
 const { PERNA_QUEUE } = process.env;
     
 module.exports.startRouteCalculation = (event, context) => eventHandler(event, context, async ()=>{
+    await updatePernaQueues();
     const getRoutePayload = await mountGetRoutePayload();
     console.log('GET_ROUTE_PAYLOAD: \n' + JSON.stringify(getRoutePayload));
     let taskResponse;
