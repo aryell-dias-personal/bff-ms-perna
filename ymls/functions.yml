@@ -5,7 +5,7 @@ startRouteCalculation:
         eventType: providers/cloud.pubsub/eventTypes/topic.publish
         resource: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
         schedule: '0 0 * * *'
-        timeZone: 'UTC'
+        timeZone: 'America/Araguaina'
         target:
           pubsubTarget:
             topicName: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
