@@ -34,7 +34,7 @@ module.exports.insertAskedPoint = (req, res) => authHandler(req, res, async (ask
     const loggedUser = await admin.auth().getUser(userData.uid);
     console.log(`LOGGED_EMAIL: ${loggedUser.email}`)
     if(loggedUser.email != askedPoint.email) throw new Error(MESSAGES.UNAUTHORIZED_USER);
-    const isValid = await isInsertValid(askedPoint.email, askedPoint.askedStartAt, askedPoint.askedEndAt)
+    const isValid = await isInsertValid(askedPoint)
     if (!isValid) throw new Error(MESSAGES.BUSY_USER);
     const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
     const newAskedPoint = mountAskedPoint(askedPoint);
@@ -54,7 +54,7 @@ module.exports.insertAgent = (req, res) => authHandler(req, res, async (agent, t
         .where(USER_FIELDS.IS_PROVIDER, '==', true).limit(1).get();
     const [ user ] = parseDocs(userQuerySnapshot);
     if (!user) throw new Error(MESSAGES.MUST_BE_PROVIDER);
-    const isValid = await isInsertValid(agent.email, agent.askedStartAt, agent.askedEndAt);
+    const isValid = await isInsertValid(agent);
     if (!isValid) throw new Error(MESSAGES.BUSY_USER);
 
     const agentRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
