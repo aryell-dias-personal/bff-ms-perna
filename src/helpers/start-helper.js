@@ -1,7 +1,6 @@
 const { COLLECTION_NAMES, ASKED_POINT_FIELDS, APP_ENGINE, AGENT_FIELDS } = require('../helpers/constants');
 const { CloudTasksClient } = require('@google-cloud/tasks');
 const { Base64 } = require("js-base64");
-const moment = require("moment-timezone");
 
 const admin = require("firebase-admin");
 const client = new CloudTasksClient();
@@ -22,8 +21,7 @@ const parseDocs = (querySnapshot) => {
 }
 
 const mountGetRoutePayload = async () => {
-    // pegar timezone de alguma forma
-    const time = moment().tz('America/Bahia').startOf('day').valueOf()/1000;
+    const time = (new Date()).setMinutes(0,0,0)/1000;
     
     console.log("TIME: "+ JSON.stringify(time));
 
@@ -33,21 +31,25 @@ const mountGetRoutePayload = async () => {
     const askedPointsQuery = await askedPointsRef.where(ASKED_POINT_FIELDS.DATE, '==', time).get();
     const agentsQuery = await agentsRef.where(AGENT_FIELDS.DATE, '==', time).get();
 
+    let region = [];
     const askedPoints = parseDocs(askedPointsQuery).map((askedPoint) => {
-        askedPoint.askedStartAt += askedPoint.date;
-        askedPoint.askedEndAt += askedPoint.date;
+        if(askedPoint.region) region = region.concat(askedPoint.region);
+        if(askedPoint.askedStartAt) askedPoint.askedStartAt += askedPoint.date;
+        if(askedPoint.askedEndAt) askedPoint.askedEndAt += askedPoint.date;
         delete askedPoint.date;
         delete askedPoint.history;
         delete askedPoint.queue;
         delete askedPoint.agentId;
         delete askedPoint.actualStartAt;
         delete askedPoint.actualEndAt;
+        delete askedPoint.staticMap;
         return askedPoint;
     });
     console.log("ASKED_POINTS: "+ JSON.stringify(askedPoints));
     const agents = parseDocs(agentsQuery).map((agent) => {
-        agent.askedStartAt += agent.date;
-        agent.askedEndAt += agent.date;
+        if(agent.region) region = region.concat(agent.region);
+        if(agent.askedStartAt) agent.askedStartAt += agent.date;
+        if(agent.askedEndAt) agent.askedEndAt += agent.date;
         delete agent.date
         delete agent.position;
         delete agent.history;
@@ -55,25 +57,19 @@ const mountGetRoutePayload = async () => {
         delete agent.watchedBy;
         delete agent.old;
         delete agent.route;
+        delete agent.staticMap;
         return agent;
     });
     console.log("AGENTS: "+ JSON.stringify(agents));
+
+    region = Array.from(new Set(region));
+    console.log("REGION: "+ JSON.stringify(region));
 
     return {
         agents: agents,
         matrix: {
             askedPoints: askedPoints,
-            // TODO: como pegar a região???
-            region: [
-                "Goiana, PE, BR",
-                "Itapissuma, PE, BR",
-                "Itamaracá, PE, BR",
-                "Igarassu, PE, BR",
-                "Abreu e Lima, PE, BR",
-                "Paulista, PE, BR",
-                "Olinda, PE, BR",
-                "Recife, PE, BR"
-            ]
+            region
         }
     };
 }
@@ -123,8 +119,7 @@ const enqueue = async (payload, inSeconds=10) => {
 }
 
 const updatePernaQueues = async () => {
-    // pegar timezone de alguma forma
-    const today = moment().tz('America/Bahia').startOf('day').valueOf()/1000;
+    const today = (new Date()).setMinutes(0,0,0)/1000;
     const yesterday = today - 24 * 60 * 60; // - 1 dia em segundos
 
     console.log("YESTERDAY: "+ JSON.stringify(yesterday));
