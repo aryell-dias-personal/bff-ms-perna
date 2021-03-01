@@ -17,7 +17,6 @@ provider:
     INTEL_URL:  ${self:custom.INTEL_URL.${self:provider.stage}}
     CALCULATE_ROUTE: CALCULATE_ROUTE_${self:provider.stage}
     GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
-    GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
     PAYMENT_SECRET_KEY: ${self:custom.PAYMENT_SECRET_KEY.${self:provider.stage}}
     FIREBASE_CONFIG: ./src/config/config.json
 

@@ -7,10 +7,6 @@ GOOGLE_URL:
   dev: 'https://maps.googleapis.com/maps/api'
   prd: 'https://maps.googleapis.com/maps/api'
   hml: 'https://maps.googleapis.com/maps/api'
-GOOGLE_CREDENTIAL: 
-  dev: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
-  prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
-  hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
 PAYMENT_SECRET_KEY: 
   dev: 'sk_test_51IOaRiEHLjxuMcan76tkQBupuY8mjmg2vhjV7FtgebEr6s18v0s75S3srSjWyEg5fGlkRo2DyBk0iwlmyR92pwbf00uFHYakpi'
   prd: 'sk_test_51IOaRiEHLjxuMcan76tkQBupuY8mjmg2vhjV7FtgebEr6s18v0s75S3srSjWyEg5fGlkRo2DyBk0iwlmyR92pwbf00uFHYakpi'
