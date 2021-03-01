@@ -18,4 +18,4 @@ INTEL_URL:
 PROJECT_ID:
   dev: 'aryell-test'
   prd: 'perna-app'
-  hml: 'aryell-test'
+  hml: 'perna-app'

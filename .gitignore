@@ -3,3 +3,4 @@ node_modules
 database/data/**
 .serverless/**
 .gcloud/**
+src/config/**
