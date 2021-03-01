@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /agent/{agent} {
+      allow read: if true;
+      allow update: 
+      	if request.auth != null && resource != null &&
+					request.auth.token.email == resource.data.email;
+    }
+    match /user/{userId} {
+      allow read: if true;
+      allow update: 
+      	if request.auth != null && resource != null &&
+					request.auth.token.email == resource.data.email;
+    }
+    match /askedPoint/{askedPointId} {
+      allow read: if true;
+      allow update: 
+      	if request.auth != null && resource != null &&
+					request.auth.token.email == resource.data.email;
+    }
+  }
+}

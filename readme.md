@@ -59,6 +59,23 @@
 
 - Torne as funções necessárias públicas para o acesso do aplicativo;
 
+## Firestore
+
+- Não esqueça de atualizar as regras do firestore
+
+- Alguns indices são necessários, dentre eles:
+
+1. askedPoint:
+
+    1. *email*, *processed* e *askedEndAt*
+    2. *email* e *askedEndAt*
+    3. *date* e *queue*
+
+2. agent:
+    1. *email* e *askedEndAt*
+    2. *email*, *processed* e *askedEndAt* 
+    3. *date* e *queue*
+
 ## Algumas Observações:
 
 > Nota: Para deploy de uma só function use o comando abaixo.
