@@ -24,10 +24,14 @@
 
 - Ative o Maps Static API;
 
-- Token Service API;
+- Ative Token Service API;
 
-- Cloud Scheduler API;
-    
+- Ative Cloud Scheduler API;
+
+- Ative Cloud Tasks API;
+
+> Nota: Ative o cloudtasks em https://console.developers.google.com/apis/api/cloudtasks.googleapis.com/overview?project=PROJECT_ID
+
 - add an App Engine application;
 
 > Nota: https://console.developers.google.com/appengine?project=PROJECT_ID
@@ -46,8 +50,6 @@
 - Torne as funções necessárias públicas para o acesso do aplicativo;
 
 ## Algumas Observações:
-
-> Nota: O erro `Cloud Tasks API has not been used in project` pode acontecer, para solucionar ative o cloudtasks em https://console.developers.google.com/apis/api/cloudtasks.googleapis.com/overview?project=PROJECT_ID
 
 > Nota: Para deploy de uma só function use o comando abaixo.
 
