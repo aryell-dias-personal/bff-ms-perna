@@ -46,9 +46,7 @@ module.exports.insertCreditCard = (req, res) => authHandler(req, res, async (sou
   if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
   const [user] = parseDocs(userQuerySnapshot);
 
-  await stripe.customers.createSource(user.paymentId, {
-    source: source,
-  });
+  await stripe.customers.createSource(user.paymentId, source);
 
   return { sucess: true };
 });
