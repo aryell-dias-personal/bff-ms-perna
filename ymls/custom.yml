@@ -1,4 +1,4 @@
-regions:
+REGIONS:
   prd: us-east1
   hml: us-east1
   dev: us-east1
@@ -11,7 +11,15 @@ GOOGLE_CREDENTIAL:
   dev: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
   prd: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
   hml: 'AIzaSyA0c4Mw7rRAiJxiTQwu6eJcoroBeWWa06w'
+PAYMENT_SECRET_KEY: 
+  dev: 'sk_test_51IOaRiEHLjxuMcan76tkQBupuY8mjmg2vhjV7FtgebEr6s18v0s75S3srSjWyEg5fGlkRo2DyBk0iwlmyR92pwbf00uFHYakpi'
+  prd: 'sk_test_51IOaRiEHLjxuMcan76tkQBupuY8mjmg2vhjV7FtgebEr6s18v0s75S3srSjWyEg5fGlkRo2DyBk0iwlmyR92pwbf00uFHYakpi'
+  hml: 'sk_test_51IOaRiEHLjxuMcan76tkQBupuY8mjmg2vhjV7FtgebEr6s18v0s75S3srSjWyEg5fGlkRo2DyBk0iwlmyR92pwbf00uFHYakpi'
 INTEL_URL:
   dev: 'https://perna-app.appspot.com'
   prd: 'https://perna-app.appspot.com'
   hml: 'https://perna-app.appspot.com'
+PROJECT_ID:
+  dev: 'aryell-test'
+  prd: 'perna-app'
+  hml: 'aryell-test'

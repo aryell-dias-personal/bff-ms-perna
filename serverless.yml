@@ -4,8 +4,8 @@ provider:
   name: google
   runtime: nodejs10
   stage: ${opt:stage, 'dev'}
-  region: ${self:custom.regions.${self:provider.stage}}
-  project: perna-app
+  region: ${self:custom.REGIONS.${self:provider.stage}}
+  project: ${self:custom.PROJECT_ID.${self:provider.stage}}
   credentials: .gcloud/keyfile.json
   environment:
     STAGE: ${self:provider.stage}
@@ -18,6 +18,7 @@ provider:
     CALCULATE_ROUTE: CALCULATE_ROUTE_${self:provider.stage}
     GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
     GOOGLE_API_CREDENTIAL: ${self:custom.GOOGLE_CREDENTIAL.${self:provider.stage}}
+    PAYMENT_SECRET_KEY: ${self:custom.PAYMENT_SECRET_KEY.${self:provider.stage}}
     FIREBASE_CONFIG: ./src/config/config.json
 
 functions: ${file(ymls/functions.yml)}

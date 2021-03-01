@@ -7,8 +7,10 @@ const { handler, authHandler, eventHandler } = require('./src/helpers/error-hand
 const admin = require("firebase-admin");
 
 admin.initializeApp();
-const { PERNA_QUEUE } = process.env;
-    
+const { PERNA_QUEUE, PAYMENT_SECRET_KEY } = process.env;
+
+const stripe = require('stripe')(PAYMENT_SECRET_KEY);
+
 module.exports.startRouteCalculation = (event, context) => eventHandler(event, context, async ()=>{
     await updatePernaQueues();
     const getRoutePayload = await mountGetRoutePayload();
@@ -26,6 +28,23 @@ module.exports.startRouteCalculation = (event, context) => eventHandler(event, c
         getRoutePayload: JSON.stringify(getRoutePayload),
         taskResponse
     };
+});
+
+module.exports.insertCreditCard = (req, res) => authHandler(req, res, async (source, token)=>{
+    const userData = await admin.auth().verifyIdToken(token);
+    console.log(`UID: ${userData.uid}`);
+    const loggedUser = await admin.auth().getUser(userData.uid);
+    console.log(`LOGGED_EMAIL: ${loggedUser.email}`);
+    const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER); 
+    const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', loggedUser.email).limit(1).get();
+    if(userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
+    const [ user ] = parseDocs(userQuerySnapshot);
+
+    await stripe.customers.createSource(user.paymentId, {
+        source: source
+    });
+
+    return { sucess: true };
 });
 
 module.exports.insertAskedPoint = (req, res) => authHandler(req, res, async (askedPoint, token)=>{
@@ -70,9 +89,17 @@ module.exports.insertUser = (req, res) => handler(req, res, async (user)=>{
         .limit(1).get();
     if(!userQuerySnapshot.empty) throw new Error(MESSAGES.USER_EXISITS);
 
-    await userRef.add(user);
+    const customer = await stripe.customers.create({
+        description: `Customer with email: ${user.email}`,
+    });
+
+    await userRef.add({
+        ...user,
+        paymentId: customer.id
+    });
     return { user: JSON.stringify({
         ...user,
+        paymentId: undefined,
         messagingTokens: undefined
     }) };
 });
@@ -88,6 +115,7 @@ module.exports.getUser = (req, res) => handler(req, res, async ({ email, messagi
 
     return { user: JSON.stringify({
         ...user,
+        paymentId: undefined,
         messagingTokens: undefined
     }) };
 });
@@ -103,6 +131,7 @@ module.exports.logout = (req, res) => handler(req, res, async ({ email, messagin
 
     return { user: JSON.stringify({
         ...user,
+        paymentId: undefined,
         messagingTokens: undefined
     }) };
 });

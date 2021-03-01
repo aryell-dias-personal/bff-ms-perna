@@ -4,7 +4,7 @@ startRouteCalculation:
     - event:
         eventType: providers/cloud.pubsub/eventTypes/topic.publish
         resource: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
-        schedule: '0 0 * * *'
+        schedule: '0 13/1,0 * * *'
         timeZone: 'America/Araguaina'
         target:
           pubsubTarget:
@@ -31,6 +31,10 @@ insertAskedPoint:
   handler: insertAskedPoint
   events:
     - http: insertAskedPoint
+insertCreditCard:
+  handler: insertCreditCard
+  events:
+    - http: insertCreditCard
 askNewAgent:
   handler: askNewAgent
   events:
