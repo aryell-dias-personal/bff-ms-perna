@@ -76,6 +76,7 @@
     2. *email*, *processed* e *askedEndAt* 
     3. *date* e *queue*
 
+> Nota: todos os indices de forma crescente 
 ## Algumas Observações:
 
 > Nota: Para deploy de uma só function use o comando abaixo.
