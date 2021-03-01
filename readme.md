@@ -1,6 +1,6 @@
-# Bem vindo ao bff-ms-perna
+# Bem Vindo ao BFF-MS-PERNA
 
-Para fazer deploy você precisa:
+## Para Fazer Deploy:
 
 - Adquirir keyfile.json do ambiente;
 
@@ -11,6 +11,8 @@ Para fazer deploy você precisa:
 > Nota 2: para fazer o deploy é necessário pegar a chave keyfile do projeto especifico (IAM e administrador -> contas e servico -> selecionar um email -> adicionar chave -> json)
 
 API e servicos - credenciais, só pesquisar 
+
+## Algumas Observações:
 
 > Nota 3: O erro `Cloud Tasks API has not been used in project` pode acontecer, para solucionar ative o cloudtasks em https://console.developers.google.com/apis/api/cloudtasks.googleapis.com/overview?project=PROJECT_ID
 
