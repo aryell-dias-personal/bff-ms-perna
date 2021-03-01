@@ -2,7 +2,7 @@
 
 ## Para Fazer Deploy:
 
-- Adquirir keyfile.json do ambiente;
+- Adquirir keyfile.json do ambiente e inserir no caminho `./gcloud`;
 
 > Nota: para fazer o deploy é necessário pegar a chave keyfile do projeto especifico (IAM e administrador -> contas e servico -> selecionar um "email" -> adicionar chave -> json)
 
