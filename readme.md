@@ -66,7 +66,6 @@
 - Alguns indices são necessários, dentre eles:
 
 1. askedPoint:
-
     1. *email*, *processed* e *askedEndAt*
     2. *email* e *askedEndAt*
     3. *date* e *queue*
@@ -77,6 +76,8 @@
     3. *date* e *queue*
 
 > Nota: todos os indices de forma crescente 
+> Nota: A ordem importa 
+
 ## Algumas Observações:
 
 > Nota: Para deploy de uma só function use o comando abaixo.
