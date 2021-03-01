@@ -6,6 +6,16 @@
 
 > Nota: para fazer o deploy é necessário pegar a chave keyfile do projeto especifico (IAM e administrador -> contas e servico -> selecionar um "email" -> adicionar chave -> json)
 
+- inserir informações do firebase em `./src/config/config.json` como abaixo:
+
+```json
+{
+    "databaseURL": "https://perna-app.firebaseio.com",
+    "storageBucket": "perna-app.appspot.com",
+    "projectId": "perna-app"
+}
+```
+
 - Ative o Cloud Deployment Manager V2 API;
 
 > Nota: normalmente ao tentar rodar o deploy com serverless, se já não foi configurado ele mostra esse link para ativar: https://console.developers.google.com/apis/api/deploymentmanager.googleapis.com/overview?project=PROJECT_CODE
