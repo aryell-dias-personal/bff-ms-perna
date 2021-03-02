@@ -35,6 +35,10 @@ insertCreditCard:
   handler: insertCreditCard
   events:
     - http: insertCreditCard
+listCreditCard:
+  handler: listCreditCard
+  events:
+    - http: listCreditCard
 askNewAgent:
   handler: askNewAgent
   events:

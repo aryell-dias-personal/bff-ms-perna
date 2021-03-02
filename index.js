@@ -51,6 +51,34 @@ module.exports.insertCreditCard = (req, res) => authHandler(req, res, async (sou
   return { sucess: true };
 });
 
+module.exports.listCreditCard = (req, res) => authHandler(req, res, async (source, token) => {
+  const userData = await admin.auth().verifyIdToken(token);
+  console.log(`UID: ${userData.uid}`);
+  const loggedUser = await admin.auth().getUser(userData.uid);
+  console.log(`LOGGED_EMAIL: ${loggedUser.email}`);
+  const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
+  const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', loggedUser.email).limit(1).get();
+  if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
+  const [user] = parseDocs(userQuerySnapshot);
+
+  const cards = await stripe.customers.listSources(user.paymentId, { object: 'card', limit: 10 });
+
+  const retrivedCards = cards.map((card) => {
+    const month = `${card.month}`.length === 2 ? `${card.month}` : `0${card.month}`;
+    const year = `${card.year}`.substring(2);
+    return {
+      id: card.id,
+      cardNumber: `**** **** **** ${card.last4}`,
+      expiryDate: `${month}/${year}`,
+      cardHolderName: card.name,
+      cvvCode: '***',
+      brand: card.brand,
+    };
+  });
+
+  return { retrivedCards };
+});
+
 module.exports.insertAskedPoint = (req, res) => authHandler(req, res, async (askedPoint, token) => {
   const userData = await admin.auth().verifyIdToken(token);
   console.log(`UID: ${userData.uid}`);
