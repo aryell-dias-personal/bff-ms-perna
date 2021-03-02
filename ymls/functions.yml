@@ -55,3 +55,4 @@ answerNewAgent:
   handler: answerNewAgent
   events:
     - http: answerNewAgent
+# SEMPRE ADICIONE A LAMBDA PARA ACESSO PÚBLICO NO GCP
