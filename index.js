@@ -126,7 +126,8 @@ module.exports.insertUser = (req, res) => handler(req, res, async (user) => {
   if (!userQuerySnapshot.empty) throw new Error(MESSAGES.USER_EXISITS);
 
   const customer = await stripe.customers.create({
-    description: `Customer with email: ${user.email}`,
+    email: user.email,
+    name: user.name
   });
 
   await userRef.add({
