@@ -68,8 +68,8 @@ module.exports.listCreditCard = (req, res) => authHandler(req, res, async (sourc
   }
 
   const retrivedCards = cards.data.map((card) => {
-    const month = `${card.month}`.length === 2 ? `${card.month}` : `0${card.month}`;
-    const year = `${card.year}`.substring(2);
+    const month = `${card.exp_month}`.length === 2 ? `${card.exp_month}` : `0${card.exp_month}`;
+    const year = `${card.exp_year}`.substring(2);
     return {
       id: card.id,
       cardNumber: `**** **** **** ${card.last4}`,
