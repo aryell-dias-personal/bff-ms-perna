@@ -63,7 +63,11 @@ module.exports.listCreditCard = (req, res) => authHandler(req, res, async (sourc
 
   const cards = await stripe.customers.listSources(user.paymentId, { object: 'card', limit: 10 });
 
-  const retrivedCards = cards.map((card) => {
+  if (!cards || !cards.data || !cards.data.length) {
+    return { retrivedCards: [] };
+  }
+
+  const retrivedCards = cards.data.map((card) => {
     const month = `${card.month}`.length === 2 ? `${card.month}` : `0${card.month}`;
     const year = `${card.year}`.substring(2);
     return {
