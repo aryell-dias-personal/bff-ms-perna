@@ -46,12 +46,48 @@ module.exports.insertCreditCard = (req, res) => authHandler(req, res, async (sou
   if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
   const [user] = parseDocs(userQuerySnapshot);
 
-  await stripe.customers.createSource(user.paymentId, source);
+  const card = await stripe.customers.createSource(user.paymentId, source);
 
-  return { sucess: true };
+  return { cardId: card.id };
 });
 
-module.exports.listCreditCard = (req, res) => authHandler(req, res, async (source, token) => {
+module.exports.deleteCreditCard = (req, res) => authHandler(req, res, async (card, token) => {
+  const userData = await admin.auth().verifyIdToken(token);
+  console.log(`UID: ${userData.uid}`);
+  const loggedUser = await admin.auth().getUser(userData.uid);
+  console.log(`LOGGED_EMAIL: ${loggedUser.email}`);
+  const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
+  const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', loggedUser.email).limit(1).get();
+  if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
+  const [user] = parseDocs(userQuerySnapshot);
+
+  const response = await stripe.customers.deleteSource(
+    user.paymentId,
+    card.creditCardId
+  );
+
+  return { deleted: response.deleted };
+});
+
+module.exports.turnDefaultCreditCard = (req, res) => authHandler(req, res, async (card, token) => {
+  const userData = await admin.auth().verifyIdToken(token);
+  console.log(`UID: ${userData.uid}`);
+  const loggedUser = await admin.auth().getUser(userData.uid);
+  console.log(`LOGGED_EMAIL: ${loggedUser.email}`);
+  const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
+  const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', loggedUser.email).limit(1).get();
+  if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
+  const [user] = parseDocs(userQuerySnapshot);
+
+  await stripe.customers.update(
+    user.paymentId,
+    { default_source: card.creditCardId }
+  );
+
+  return { defaultSource: card.creditCardId };
+});
+
+module.exports.listCreditCard = (req, res) => authHandler(req, res, async (_, token) => {
   const userData = await admin.auth().verifyIdToken(token);
   console.log(`UID: ${userData.uid}`);
   const loggedUser = await admin.auth().getUser(userData.uid);
@@ -127,7 +163,7 @@ module.exports.insertUser = (req, res) => handler(req, res, async (user) => {
 
   const customer = await stripe.customers.create({
     email: user.email,
-    name: user.name
+    name: user.name,
   });
 
   await userRef.add({

@@ -31,6 +31,14 @@ insertAskedPoint:
   handler: insertAskedPoint
   events:
     - http: insertAskedPoint
+turnDefaultCreditCard:
+  handler: turnDefaultCreditCard
+  events:
+    - http: turnDefaultCreditCard
+deleteCreditCard:
+  handler: deleteCreditCard
+  events:
+    - http: deleteCreditCard
 insertCreditCard:
   handler: insertCreditCard
   events:
