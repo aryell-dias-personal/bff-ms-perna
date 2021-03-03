@@ -51,6 +51,42 @@ module.exports.insertCreditCard = (req, res) => authHandler(req, res, async (sou
   return { cardId: card.id };
 });
 
+module.exports.confirmPayment = (req, res) => authHandler(req, res, async (askedPointId, token) => {
+  const userData = await admin.auth().verifyIdToken(token);
+  console.log(`UID: ${userData.uid}`);
+  const loggedUser = await admin.auth().getUser(userData.uid);
+  console.log(`LOGGED_EMAIL: ${loggedUser.email}`);
+  const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
+  const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', loggedUser.email).limit(1).get();
+  if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
+  const [user] = parseDocs(userQuerySnapshot);
+
+  const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
+  const documentRef = await askedPointsRef.doc(askedPointId);
+  const askedPoint = documentRef.get().data();
+
+  console.log(`ASKED_POINT: ${JSON.stringify(askedPoint)}`);
+  if (askedPoint && !askedPoint.paid) {
+    const customer = await stripe.customers.retrieve(user.paymentId);
+
+    const charge = await stripe.charges.create({
+      amount: askedPoint.amount,
+      currency: customer.currency,
+      source: customer.default_source,
+      description: `Seu pedido no Perna, ${user.name}`,
+    });
+
+    await documentRef.set({
+      paid: charge.paid,
+      chargeObject: charge.id,
+    }, { merge: true });
+
+    return { paid: charge.paid };
+  }
+
+  return { paid: false };
+});
+
 module.exports.deleteCreditCard = (req, res) => authHandler(req, res, async (card, token) => {
   const userData = await admin.auth().verifyIdToken(token);
   console.log(`UID: ${userData.uid}`);

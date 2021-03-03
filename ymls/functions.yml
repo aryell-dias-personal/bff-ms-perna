@@ -55,4 +55,8 @@ answerNewAgent:
   handler: answerNewAgent
   events:
     - http: answerNewAgent
+confirmPayment:
+  handler: confirmPayment
+  events:
+    - http: confirmPayment
 # SEMPRE ADICIONE A LAMBDA PARA ACESSO PÚBLICO NO GCP

@@ -10,10 +10,14 @@ module.exports.mountAskedPoint = (askedPoint) => {
     const orderedFullQueue = fullQueue.sort((first, second) => first - second);
     ([date, ...queue] = orderedFullQueue);
   }
+  // TODO: obter valor real do pedido
   return {
     ...askedPoint,
     queue,
     date,
+    amount: 2000,
+    paid: false,
+    chargeObject: null,
     origin: `${askedPoint.origin}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
     destiny: `${askedPoint.destiny}${ENCODED_NAMES.SEPARETOR}${randomstring.generate()}`,
   };

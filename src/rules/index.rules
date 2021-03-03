@@ -7,17 +7,13 @@ service cloud.firestore {
       	if request.auth != null && resource != null &&
 					request.auth.token.email == resource.data.email;
     }
+    // Só pode editar no backend
     match /user/{userId} {
       allow read: if true;
-      allow update: 
-      	if request.auth != null && resource != null &&
-					request.auth.token.email == resource.data.email;
     }
+    // Só pode editar no backend
     match /askedPoint/{askedPointId} {
       allow read: if true;
-      allow update: 
-      	if request.auth != null && resource != null &&
-					request.auth.token.email == resource.data.email;
     }
   }
 }
