@@ -51,40 +51,42 @@ module.exports.insertCreditCard = (req, res) => authHandler(req, res, async (sou
   return { cardId: card.id };
 });
 
-module.exports.confirmPayment = (req, res) => authHandler(req, res, async (askedPoint, token) => {
+module.exports.confirmAskedPointPayment = (req, res) => authHandler(req, res, async (askedPoint, token) => {
   const userData = await admin.auth().verifyIdToken(token);
   console.log(`UID: ${userData.uid}`);
   const loggedUser = await admin.auth().getUser(userData.uid);
   console.log(`LOGGED_EMAIL: ${loggedUser.email}`);
+
+  if (loggedUser.email !== askedPoint.email) throw new Error(MESSAGES.UNAUTHORIZED_USER);
+  const isValid = await isInsertValid(askedPoint);
+  if (!isValid) throw new Error(MESSAGES.BUSY_USER);
+
   const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
   const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', loggedUser.email).limit(1).get();
   if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
   const [user] = parseDocs(userQuerySnapshot);
 
-  const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
-  const documentRef = await askedPointsRef.doc(askedPoint.id);
-  const askedPointDoc = documentRef.get().data();
+  const customer = await stripe.customers.retrieve(user.paymentId);
+  const newAskedPoint = mountAskedPoint(askedPoint, customer.currency);
+  console.log(`NEW_ASKED_POINT: ${JSON.stringify(newAskedPoint)}`); 
 
-  console.log(`ASKED_POINT: ${JSON.stringify(askedPointDoc)}`);
-  if (askedPointDoc && !askedPointDoc.paid) {
-    const customer = await stripe.customers.retrieve(user.paymentId);
+  const charge = await stripe.charges.create({
+    amount: newAskedPoint.amount,
+    currency: customer.currency,
+    source: customer.default_source,
+    description: `Pedido do usuário com nome ${user.name}`,
+    customer: user.paymentId,
+  });
 
-    const charge = await stripe.charges.create({
-      amount: askedPointDoc.amount,
-      currency: customer.currency,
-      source: customer.default_source,
-      description: `Seu pedido no Perna, ${user.name}`,
+  if(charge.paid) {
+    const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
+    await askedPointsRef.add({
+      ...newAskedPoint,
+      chargeObject: charge.id
     });
-
-    await documentRef.set({
-      paid: charge.paid,
-      chargeObject: charge.id,
-    }, { merge: true });
-
-    return { paid: charge.paid };
   }
 
-  return { paid: false };
+  return { paid: charge.paid };
 });
 
 module.exports.deleteCreditCard = (req, res) => authHandler(req, res, async (card, token) => {
@@ -155,19 +157,26 @@ module.exports.listCreditCard = (req, res) => authHandler(req, res, async (_, to
   return { retrivedCards };
 });
 
-module.exports.insertAskedPoint = (req, res) => authHandler(req, res, async (askedPoint, token) => {
+module.exports.simulateAskedPoint = (req, res) => authHandler(req, res, async (askedPoint, token) => {
   const userData = await admin.auth().verifyIdToken(token);
   console.log(`UID: ${userData.uid}`);
   const loggedUser = await admin.auth().getUser(userData.uid);
   console.log(`LOGGED_EMAIL: ${loggedUser.email}`);
+
   if (loggedUser.email !== askedPoint.email) throw new Error(MESSAGES.UNAUTHORIZED_USER);
   const isValid = await isInsertValid(askedPoint);
   if (!isValid) throw new Error(MESSAGES.BUSY_USER);
-  const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
-  const newAskedPoint = mountAskedPoint(askedPoint);
-  await askedPointsRef.add(newAskedPoint);
 
-  return { newAskedPoint: JSON.stringify(newAskedPoint) };
+  const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
+  const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', loggedUser.email).limit(1).get();
+  if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
+  const [user] = parseDocs(userQuerySnapshot);
+
+  const customer = await stripe.customers.retrieve(user.paymentId);
+  const simulatedAskedPoint = mountAskedPoint(askedPoint, customer.currency);
+  console.log(`SIMULATED_ASKED_POINT: ${JSON.stringify(simulatedAskedPoint)}`);
+
+  return { simulatedAskedPoint };
 });
 
 module.exports.insertAgent = (req, res) => authHandler(req, res, async (agent, token) => {

@@ -28,10 +28,10 @@ insertAgent:
   handler: insertAgent
   events:
     - http: insertAgent
-insertAskedPoint:
-  handler: insertAskedPoint
+simulateAskedPoint:
+  handler: simulateAskedPoint
   events:
-    - http: insertAskedPoint
+    - http: simulateAskedPoint
 turnDefaultCreditCard:
   handler: turnDefaultCreditCard
   events:
@@ -56,8 +56,8 @@ answerNewAgent:
   handler: answerNewAgent
   events:
     - http: answerNewAgent
-confirmPayment:
-  handler: confirmPayment
+confirmAskedPointPayment:
+  handler: confirmAskedPointPayment
   events:
-    - http: confirmPayment
+    - http: confirmAskedPointPayment
 # SEMPRE ADICIONE A LAMBDA PARA ACESSO PÚBLICO NO GCP
