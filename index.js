@@ -63,14 +63,14 @@ module.exports.confirmPayment = (req, res) => authHandler(req, res, async (asked
 
   const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
   const documentRef = await askedPointsRef.doc(askedPoint.id);
-  const askedPoint = documentRef.get().data();
+  const askedPointDoc = documentRef.get().data();
 
-  console.log(`ASKED_POINT: ${JSON.stringify(askedPoint)}`);
-  if (askedPoint && !askedPoint.paid) {
+  console.log(`ASKED_POINT: ${JSON.stringify(askedPointDoc)}`);
+  if (askedPointDoc && !askedPointDoc.paid) {
     const customer = await stripe.customers.retrieve(user.paymentId);
 
     const charge = await stripe.charges.create({
-      amount: askedPoint.amount,
+      amount: askedPointDoc.amount,
       currency: customer.currency,
       source: customer.default_source,
       description: `Seu pedido no Perna, ${user.name}`,
