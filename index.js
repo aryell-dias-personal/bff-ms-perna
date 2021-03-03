@@ -51,7 +51,7 @@ module.exports.insertCreditCard = (req, res) => authHandler(req, res, async (sou
   return { cardId: card.id };
 });
 
-module.exports.confirmPayment = (req, res) => authHandler(req, res, async (askedPointId, token) => {
+module.exports.confirmPayment = (req, res) => authHandler(req, res, async (askedPoint, token) => {
   const userData = await admin.auth().verifyIdToken(token);
   console.log(`UID: ${userData.uid}`);
   const loggedUser = await admin.auth().getUser(userData.uid);
@@ -62,7 +62,7 @@ module.exports.confirmPayment = (req, res) => authHandler(req, res, async (asked
   const [user] = parseDocs(userQuerySnapshot);
 
   const askedPointsRef = admin.firestore().collection(COLLECTION_NAMES.ASKED_POINT);
-  const documentRef = await askedPointsRef.doc(askedPointId);
+  const documentRef = await askedPointsRef.doc(askedPoint.id);
   const askedPoint = documentRef.get().data();
 
   console.log(`ASKED_POINT: ${JSON.stringify(askedPoint)}`);
