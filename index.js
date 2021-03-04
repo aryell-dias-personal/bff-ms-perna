@@ -67,12 +67,12 @@ module.exports.confirmAskedPointPayment = (req, res) => authHandler(req, res, as
   const [user] = parseDocs(userQuerySnapshot);
 
   const customer = await stripe.customers.retrieve(user.paymentId);
-  const newAskedPoint = mountAskedPoint(askedPoint, customer.currency);
+  const newAskedPoint = mountAskedPoint(askedPoint, user.currency);
   console.log(`NEW_ASKED_POINT: ${JSON.stringify(newAskedPoint)}`); 
 
   const charge = await stripe.charges.create({
     amount: newAskedPoint.amount,
-    currency: customer.currency,
+    currency: user.currency,
     source: customer.default_source,
     description: `Pedido do usuário com nome ${user.name}`,
     customer: user.paymentId,
@@ -208,8 +208,7 @@ module.exports.insertUser = (req, res) => handler(req, res, async (user) => {
 
   const customer = await stripe.customers.create({
     email: user.email,
-    name: user.name,
-    currency: user.currency
+    name: user.name
   });
 
   await userRef.add({
