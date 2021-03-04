@@ -5,9 +5,6 @@ const { MESSAGES } = require('../helpers/constants');
 module.exports.isInsertValid = async ({
   date, queue, askedStartAt, askedEndAt,
 }) => {
-  if (!askedStartAt) {
-    throw new Error(MESSAGES.NULL_ASKED_POINT);
-  }
   if (askedStartAt != null && askedEndAt != null && askedStartAt >= askedEndAt) {
     throw new Error(MESSAGES.INVALID_START_END);
   }
