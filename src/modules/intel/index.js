@@ -2,8 +2,8 @@
 
 const {
   mountGetRoutePayload, enqueue, listQueues, createQueue, updatePernaQueues,
-} = require('./src/helpers/start-helper');
-const { eventHandler } = require('./src/helpers/error-handler');
+} = require('../../helpers/start-helper');
+const { eventHandler } = require('../../helpers/error-handler');
 
 const { PERNA_QUEUE } = process.env;
 

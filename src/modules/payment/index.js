@@ -2,11 +2,11 @@
 
 const admin = require('firebase-admin');
 const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY);
-const { parseDocs } = require('./src/helpers/start-helper');
-const { authHandler } = require('./src/helpers/error-handler');
-const { isInsertValid } = require('./src/helpers/validators');
-const { mountAskedPoint } = require('./src/helpers/insert-asked-helper');
-const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('./src/helpers/constants');
+const { parseDocs } = require('../../helpers/start-helper');
+const { authHandler } = require('../../helpers/error-handler');
+const { isInsertValid } = require('../../helpers/validators');
+const { mountAskedPoint } = require('../../helpers/insert-asked-helper');
+const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('../../helpers/constants');
 
 const listCreditCard = (req, res) => authHandler(req, res, async (_, token) => {
   const userData = await admin.auth().verifyIdToken(token);

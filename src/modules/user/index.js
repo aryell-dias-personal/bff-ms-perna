@@ -2,9 +2,9 @@
 
 const admin = require('firebase-admin');
 const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY);
-const { parseDocs } = require('./src/helpers/start-helper');
-const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('./src/helpers/constants');
-const { handler } = require('./src/helpers/error-handler');
+const { parseDocs } = require('../../helpers/start-helper');
+const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('../../helpers/constants');
+const { handler } = require('../../helpers/error-handler');
 
 const insertUser = (req, res) => handler(req, res, async (user) => {
   const userRef = admin.firestore().collection(COLLECTION_NAMES.USER);

@@ -1,10 +1,10 @@
 'use strict';
 
 const admin = require('firebase-admin');
-const { parseDocs } = require('./src/helpers/start-helper');
-const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('./src/helpers/constants');
+const { parseDocs } = require('../../helpers/start-helper');
+const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('../../helpers/constants');
 const { isInsertValid } = require('../../helpers/validators');
-const { handler, authHandler } = require('./src/helpers/error-handler');
+const { handler, authHandler } = require('../../helpers/error-handler');
 const { mountAgent } = require('../../helpers/insert-agent-helper');
 
 const askNewAgent = (req, res) => handler(req, res, async (agent) => {
