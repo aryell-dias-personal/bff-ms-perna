@@ -1,9 +1,9 @@
 'use strict';
 
+const admin = require('firebase-admin');
 const { CloudTasksClient } = require('@google-cloud/tasks');
 const { Base64 } = require('js-base64');
 
-const admin = require('firebase-admin');
 const {
   COLLECTION_NAMES, ASKED_POINT_FIELDS, APP_ENGINE, AGENT_FIELDS,
 } = require('../helpers/constants');
@@ -18,7 +18,8 @@ const {
 } = process.env;
 
 const parseDocs = (querySnapshot) => {
-  console.log(`DOCS: ${querySnapshot.empty ? 'EMPTY' : JSON.stringify(querySnapshot.docs.map(doc => doc.data()))}`);
+  console.log(`DOCS: ${querySnapshot.empty ? 'EMPTY'
+    : JSON.stringify(querySnapshot.docs.map(doc => doc.data()))}`);
   return querySnapshot.empty ? [] : querySnapshot.docs.map(doc => ({
     ...doc.data(),
     _id: doc.id,

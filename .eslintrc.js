@@ -31,7 +31,7 @@ module.exports = {
     'linebreak-style': 'off',
     'class-methods-use-this': 'off',
     'indent': ['error', 2],
-    'max-len': ['error', 120, 2, {
+    'max-len': ['error', 100, 2, {
       ignoreComments: true
     }],
     'no-unused-vars': ['error', {

@@ -68,12 +68,15 @@
 - Alguns indices são necessários, dentre eles:
 
 1. askedPoint:
-    1. *email*, *date*, *processed* e *askedEndAt*
+    1. *email*, *processed* e *actualEndAt*
     2. *date* e *queue*
 
 2. agent:
     1. *email*, *date*, *processed* e *askedEndAt* 
     2. *date* e *queue*
+
+3. user:
+    2. *email* e *isProvider*
 
 > Nota: todos os indices de forma crescente 
 > Nota: A ordem importa 
