@@ -82,7 +82,7 @@
     2. *date* e *queue*
 
 3. user:
-    2. *email* e *isProvider*
+    1. *email* e *isProvider*
 
 > Nota: todos os indices de forma crescente 
 > Nota: A ordem importa 
