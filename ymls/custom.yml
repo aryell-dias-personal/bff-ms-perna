@@ -1,16 +1,15 @@
 REGIONS:
-  prd: us-east1
-  hml: us-east1
-  dev: us-east1
-  test: us-east1
+  prd: 'us-east1'
+  hml: 'us-east1'
+  dev: 'us-east1'
 GOOGLE_URL: 
   dev: 'https://maps.googleapis.com/maps/api'
   prd: 'https://maps.googleapis.com/maps/api'
   hml: 'https://maps.googleapis.com/maps/api'
-PAYMENT_SECRET_KEY: 
-  dev: 'sk_test_51IOaRiEHLjxuMcan76tkQBupuY8mjmg2vhjV7FtgebEr6s18v0s75S3srSjWyEg5fGlkRo2DyBk0iwlmyR92pwbf00uFHYakpi'
-  prd: 'sk_test_51IOaRiEHLjxuMcan76tkQBupuY8mjmg2vhjV7FtgebEr6s18v0s75S3srSjWyEg5fGlkRo2DyBk0iwlmyR92pwbf00uFHYakpi'
-  hml: 'sk_test_51IOaRiEHLjxuMcan76tkQBupuY8mjmg2vhjV7FtgebEr6s18v0s75S3srSjWyEg5fGlkRo2DyBk0iwlmyR92pwbf00uFHYakpi'
+STRIPE_SECRET_KEY_VERSION_NAME: 
+  dev: 'projects/376560728219/secrets/STRIPE_SECRET_KEY_VERSION_NAME_DEV/versions/latest'
+  prd: 'projects/376560728219/secrets/STRIPE_SECRET_KEY_VERSION_NAME_PRD/versions/latest'
+  hml: 'projects/376560728219/secrets/STRIPE_SECRET_KEY_VERSION_NAME_HML/versions/latest'
 INTEL_URL:
   dev: 'https://perna-app.appspot.com'
   prd: 'https://perna-app.appspot.com'

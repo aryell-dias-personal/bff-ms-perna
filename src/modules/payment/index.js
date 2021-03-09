@@ -1,12 +1,13 @@
 'use strict';
 
 const admin = require('firebase-admin');
-const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY);
+const stripe = require('stripe');
 const { parseDocs } = require('../../helpers/start-helper');
 const { authHandler } = require('../../helpers/error-handler');
 const { isInsertValid } = require('../../helpers/validators');
 const { mountAskedPoint } = require('../../helpers/insert-asked-helper');
 const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('../../helpers/constants');
+const { getStripeScretKey } = require('../../helpers/payment-helper');
 
 const listCreditCard = (req, res) => authHandler(req, res, async (_, token) => {
   const userData = await admin.auth().verifyIdToken(token);
@@ -19,7 +20,9 @@ const listCreditCard = (req, res) => authHandler(req, res, async (_, token) => {
   if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
   const [user] = parseDocs(userQuerySnapshot);
 
-  const cards = await stripe.customers.listSources(user.paymentId, { object: 'card', limit: 10 });
+  const stripeSecret = await getStripeScretKey();
+  const cards = await stripe(stripeSecret).customers
+    .listSources(user.paymentId, { object: 'card', limit: 10 });
 
   if (!cards || !cards.data || !cards.data.length) {
     return { retrivedCards: [] };
@@ -52,7 +55,8 @@ const insertCreditCard = (req, res) => authHandler(req, res, async (source, toke
   if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
   const [user] = parseDocs(userQuerySnapshot);
 
-  const card = await stripe.customers.createSource(user.paymentId, source);
+  const stripeSecret = await getStripeScretKey();
+  const card = await stripe(stripeSecret).customers.createSource(user.paymentId, source);
 
   return { cardId: card.id };
 });
@@ -74,11 +78,14 @@ const confirmAskedPointPayment = (req, res) => {
     if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
     const [user] = parseDocs(userQuerySnapshot);
 
-    const customer = await stripe.customers.retrieve(user.paymentId);
+    const stripeSecret = await getStripeScretKey();
+    const stripeInstance = stripe(stripeSecret);
+
+    const customer = await stripeInstance.customers.retrieve(user.paymentId);
     const newAskedPoint = mountAskedPoint(askedPoint, user.currency);
     console.log(`NEW_ASKED_POINT: ${JSON.stringify(newAskedPoint)}`);
 
-    const charge = await stripe.charges.create({
+    const charge = await stripeInstance.charges.create({
       amount: newAskedPoint.amount,
       currency: user.currency,
       source: customer.default_source,
@@ -109,7 +116,8 @@ const deleteCreditCard = (req, res) => authHandler(req, res, async (card, token)
   if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
   const [user] = parseDocs(userQuerySnapshot);
 
-  const response = await stripe.customers.deleteSource(
+  const stripeSecret = await getStripeScretKey();
+  const response = await stripe(stripeSecret).customers.deleteSource(
     user.paymentId,
     card.creditCardId
   );
@@ -128,7 +136,8 @@ const turnDefaultCreditCard = (req, res) => authHandler(req, res, async (card, t
   if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
   const [user] = parseDocs(userQuerySnapshot);
 
-  await stripe.customers.update(
+  const stripeSecret = await getStripeScretKey();
+  await stripe(stripeSecret).customers.update(
     user.paymentId,
     { default_source: card.creditCardId }
   );
