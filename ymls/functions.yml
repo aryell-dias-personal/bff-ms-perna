@@ -23,7 +23,7 @@ getUser:
 logout:
   handler: logout
   events:
-    - http: logouts
+    - http: logout
 insertAgent:
   handler: insertAgent
   events:
