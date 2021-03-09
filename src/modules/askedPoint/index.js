@@ -1,13 +1,11 @@
 'use strict';
 
 const admin = require('firebase-admin');
-const stripe = require('stripe');
 const { parseDocs } = require('../../helpers/start-helper');
 const { isInsertValid } = require('../../helpers/validators');
 const { mountAskedPoint } = require('../../helpers/insert-asked-helper');
 const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('../../helpers/constants');
 const { authHandler } = require('../../helpers/error-handler');
-const { getStripeScretKey } = require('../../helpers/payment-helper');
 
 const simulateAskedPoint = (req, res) => authHandler(req, res, async (askedPoint, token) => {
   const userData = await admin.auth().verifyIdToken(token);
@@ -25,9 +23,7 @@ const simulateAskedPoint = (req, res) => authHandler(req, res, async (askedPoint
   if (userQuerySnapshot.empty) throw new Error(MESSAGES.USER_DOESNT_EXISITS);
   const [user] = parseDocs(userQuerySnapshot);
 
-  const stripeSecret = await getStripeScretKey();
-  const customer = await stripe(stripeSecret).customers.retrieve(user.paymentId);
-  const simulatedAskedPoint = mountAskedPoint(askedPoint, customer.currency);
+  const simulatedAskedPoint = mountAskedPoint(askedPoint, user.currency);
   console.log(`SIMULATED_ASKED_POINT: ${JSON.stringify(simulatedAskedPoint)}`);
 
   return { simulatedAskedPoint };
