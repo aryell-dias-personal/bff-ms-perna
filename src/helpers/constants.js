@@ -48,6 +48,5 @@ module.exports = {
   },
   RETURN_MESSAGES: {
     SUCCESS: 'success',
-    ERROR: 'error',
   },
 };
