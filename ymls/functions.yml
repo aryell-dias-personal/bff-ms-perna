@@ -1,17 +1,17 @@
 # pra deletar esse cara e seu tópico tem que ser manual
-# startRouteCalculation:
-#   handler: startRouteCalculation
-#   events:
-#     - event:
-#         eventType: providers/cloud.pubsub/eventTypes/topic.publish
-#         resource: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
-#         schedule: '0 13/1,0 * * *'
-#         timeZone: 'America/Araguaina'
-#         target:
-#           pubsubTarget:
-#             topicName: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
-#             attributes:
-#               date: '0'
+startRouteCalculation:
+  handler: startRouteCalculation
+  events:
+    - event:
+        eventType: providers/cloud.pubsub/eventTypes/topic.publish
+        resource: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
+        schedule: '0 13/1,0 * * *'
+        timeZone: 'America/Araguaina'
+        target:
+          pubsubTarget:
+            topicName: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
+            attributes:
+              date: '0'
 insertUser:
   handler: insertUser
   events:
