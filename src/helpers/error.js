@@ -38,11 +38,13 @@ const getKnownError = (error) => {
   const knownErrors = {
     InternalServerError: error,
     AuthException: error,
+    NotFound: error,
   };
-  return knownErrors[currentError.name] || new InternalServerError(error);
+  return knownErrors[currentError.name] || new InternalServerError(error.message);
 };
 
-const errorHandler = (err, _, res) => {
+// eslint-disable-next-line no-unused-vars
+const errorHandler = (err, req, res, next) => {
   console.log('ERROR: \n', err);
   const { message, status, name } = getKnownError(err);
   return res.status(status || 500).json({ message, name });
