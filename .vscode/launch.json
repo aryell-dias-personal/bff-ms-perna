@@ -18,6 +18,30 @@
             "--signature-type=event"
         ],
         "port": 9229
-      }
+      },
+      {
+        "name": "server",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "runtimeExecutable": "node",
+        "env": {
+          "REGION": "us-east1",
+          "PROJECT": "aryell-test",
+          "SERVICE": "perna-app",
+          "PERNA_QUEUE": "perna-queue-dev",
+          "INTEL_URL":  "https://perna-app.appspot.com",
+          "CALCULATE_ROUTE": "CALCULATE_ROUTE_dev",
+          "GOOGLE_API_URL": "https://maps.googleapis.com/maps/api",
+          "STRIPE_SECRET_KEY_VERSION_NAME": "projects/376560728219/secrets/STRIPE_SECRET_KEY_VERSION_NAME_DEV/versions/latest",
+          "FIREBASE_CONFIG": "./src/config/config.json",
+          "STAGE": "dev"
+        },
+        "runtimeArgs": [
+          "--inspect=8228",
+          "node_modules/@google-cloud/functions-framework",
+          "--target=server"
+        ],
+      },
     ]
   }

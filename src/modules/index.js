@@ -1,15 +1,21 @@
 'use strict';
 
-const agent = require('./agent');
-const askedPoint = require('./askedPoint');
-const intel = require('./intel');
-const payment = require('./payment');
-const user = require('./user');
+const cors = require('cors');
+const express = require('serverless-express/express');
+
+const { startRouteCalculation } = require('./intel');
+const router = require('./router');
+const { eventHandler } = require('../helpers/handler');
+const { errorHandler, notFoundHandler } = require('../helpers/error');
+
+const server = express();
+
+server.use(cors());
+server.use('/', router);
+server.use(notFoundHandler);
+server.use(errorHandler);
 
 module.exports = {
-  ...agent,
-  ...askedPoint,
-  ...intel,
-  ...payment,
-  ...user,
+  startRouteCalculation: eventHandler(startRouteCalculation),
+  server,
 };

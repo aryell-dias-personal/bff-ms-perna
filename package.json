@@ -12,6 +12,7 @@
   "dependencies": {
     "@google-cloud/secret-manager": "^3.5.0",
     "@google-cloud/tasks": "^2.1.2",
+    "cors": "^2.8.5",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-airbnb-base": "^13.1.0",
@@ -22,6 +23,7 @@
     "js-base64": "^3.6.0",
     "randomstring": "^1.1.5",
     "request": "^2.88.2",
+    "serverless-express": "^2.0.11",
     "stripe": "^8.137.0"
   },
   "devDependencies": {

@@ -4,10 +4,9 @@ const admin = require('firebase-admin');
 const stripe = require('stripe');
 const { parseDocs } = require('../../helpers/start-helper');
 const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('../../helpers/constants');
-const { handler } = require('../../helpers/error-handler');
 const { getStripeScretKey } = require('../../helpers/payment-helper');
 
-const insertUser = (req, res) => handler(req, res, async (user) => {
+const insertUser = async (user) => {
   const userRef = admin.firestore().collection(COLLECTION_NAMES.USER);
   const userQuerySnapshot = await userRef.where(USER_FIELDS.EMAIL, '==', user.email)
     .limit(1).get();
@@ -30,9 +29,9 @@ const insertUser = (req, res) => handler(req, res, async (user) => {
       messagingTokens: undefined,
     }),
   };
-});
+};
 
-const getUser = (req, res) => handler(req, res, async ({ email, messagingToken }) => {
+const getUser = async ({ email, messagingToken }) => {
   const userRef = admin.firestore().collection(COLLECTION_NAMES.USER);
   const userQuerySnapshot = await userRef.where(USER_FIELDS.EMAIL, '==', email)
     .limit(1).get();
@@ -48,9 +47,9 @@ const getUser = (req, res) => handler(req, res, async ({ email, messagingToken }
       messagingTokens: undefined,
     }),
   };
-});
+};
 
-const logout = (req, res) => handler(req, res, async ({ email, messagingToken }) => {
+const logout = async ({ email, messagingToken }) => {
   const userRef = admin.firestore().collection(COLLECTION_NAMES.USER);
   const userQuerySnapshot = await userRef.where(USER_FIELDS.EMAIL, '==', email)
     .limit(1).get();
@@ -66,7 +65,7 @@ const logout = (req, res) => handler(req, res, async ({ email, messagingToken })
       messagingTokens: undefined,
     }),
   };
-});
+};
 
 module.exports = {
   insertUser,

@@ -3,11 +3,10 @@
 const {
   mountGetRoutePayload, enqueue, listQueues, createQueue, updatePernaQueues,
 } = require('../../helpers/start-helper');
-const { eventHandler } = require('../../helpers/error-handler');
 
 const { PERNA_QUEUE } = process.env;
 
-const startRouteCalculation = (event, context) => eventHandler(event, context, async () => {
+const startRouteCalculation = async () => {
   await updatePernaQueues();
   const getRoutePayload = await mountGetRoutePayload();
   console.log(`GET_ROUTE_PAYLOAD: \n${JSON.stringify(getRoutePayload)}`);
@@ -26,7 +25,7 @@ const startRouteCalculation = (event, context) => eventHandler(event, context, a
     getRoutePayload: JSON.stringify(getRoutePayload),
     taskResponse,
   };
-});
+};
 
 module.exports = {
   startRouteCalculation,

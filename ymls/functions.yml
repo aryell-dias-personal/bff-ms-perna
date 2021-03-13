@@ -1,63 +1,19 @@
 # pra deletar esse cara e seu tópico tem que ser manual
-startRouteCalculation:
-  handler: startRouteCalculation
+# startRouteCalculation:
+#   handler: startRouteCalculation
+#   events:
+#     - event:
+#         eventType: providers/cloud.pubsub/eventTypes/topic.publish
+#         resource: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
+#         schedule: '0 13/1,0 * * *'
+#         timeZone: 'America/Araguaina'
+#         target:
+#           pubsubTarget:
+#             topicName: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
+#             attributes:
+#               date: '0'
+server:
+  handler: server
   events:
-    - event:
-        eventType: providers/cloud.pubsub/eventTypes/topic.publish
-        resource: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
-        schedule: '0 13/1,0 * * *'
-        timeZone: 'America/Araguaina'
-        target:
-          pubsubTarget:
-            topicName: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
-            attributes:
-              date: '0'
-insertUser:
-  handler: insertUser
-  events:
-    - http: insertUser
-getUser:
-  handler: getUser
-  events:
-    - http: getUser
-logout:
-  handler: logout
-  events:
-    - http: logout
-insertAgent:
-  handler: insertAgent
-  events:
-    - http: insertAgent
-simulateAskedPoint:
-  handler: simulateAskedPoint
-  events:
-    - http: simulateAskedPoint
-turnDefaultCreditCard:
-  handler: turnDefaultCreditCard
-  events:
-    - http: turnDefaultCreditCard
-deleteCreditCard:
-  handler: deleteCreditCard
-  events:
-    - http: deleteCreditCard
-insertCreditCard:
-  handler: insertCreditCard
-  events:
-    - http: insertCreditCard
-listCreditCard:
-  handler: listCreditCard
-  events:
-    - http: listCreditCard
-askNewAgent:
-  handler: askNewAgent
-  events:
-    - http: askNewAgent
-answerNewAgent:
-  handler: answerNewAgent
-  events:
-    - http: answerNewAgent
-confirmAskedPointPayment:
-  handler: confirmAskedPointPayment
-  events:
-    - http: confirmAskedPointPayment
+    - http: server
 # SEMPRE ADICIONE A LAMBDA PARA ACESSO PÚBLICO NO GCP
