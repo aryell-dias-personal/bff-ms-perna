@@ -12,52 +12,8 @@
 #             topicName: 'projects/${self:provider.project, ""}/topics/START_ROUTE_${self:provider.stage}'
 #             attributes:
 #               date: '0'
-insertUser:
-  handler: insertUser
+server:
+  handler: server
   events:
-    - http: insertUser
-getUser:
-  handler: getUser
-  events:
-    - http: getUser
-logout:
-  handler: logout
-  events:
-    - http: logout
-insertAgent:
-  handler: insertAgent
-  events:
-    - http: insertAgent
-simulateAskedPoint:
-  handler: simulateAskedPoint
-  events:
-    - http: simulateAskedPoint
-turnDefaultCreditCard:
-  handler: turnDefaultCreditCard
-  events:
-    - http: turnDefaultCreditCard
-deleteCreditCard:
-  handler: deleteCreditCard
-  events:
-    - http: deleteCreditCard
-insertCreditCard:
-  handler: insertCreditCard
-  events:
-    - http: insertCreditCard
-listCreditCard:
-  handler: listCreditCard
-  events:
-    - http: listCreditCard
-askNewAgent:
-  handler: askNewAgent
-  events:
-    - http: askNewAgent
-answerNewAgent:
-  handler: answerNewAgent
-  events:
-    - http: answerNewAgent
-confirmAskedPointPayment:
-  handler: confirmAskedPointPayment
-  events:
-    - http: confirmAskedPointPayment
+    - http: server
 # SEMPRE ADICIONE A LAMBDA PARA ACESSO PÚBLICO NO GCP
