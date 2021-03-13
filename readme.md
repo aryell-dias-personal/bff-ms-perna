@@ -42,9 +42,13 @@
 
 - Ative Firebase Installations API;
 
+- Ative Secret Manager API;
+
+- Adicione a chave secreta do Stripe em `Gerenciador de secrets` no console;
+
 > Nota: Ative o cloudtasks em https://console.developers.google.com/apis/api/cloudtasks.googleapis.com/overview?project=PROJECT_ID
 
-- add an App Engine application;
+- Adicione um App Engine application;
 
 > Nota: https://console.developers.google.com/appengine?project=PROJECT_ID
 > Nota: aproveite a faça o deploy do PERNA-INTEL
@@ -61,6 +65,8 @@
 
 - Torne as funções necessárias públicas para o acesso do aplicativo;
 
+- Habilite o acesso das funções a secret por meio da role `Secret Manager Secret Accessor`
+> Nota: (IAM e administrador -> PROJECT_ID@appspot.gserviceaccount.com -> habilitar Secret Manager Secret Accessor)
 ## Firestore
 
 - Não esqueça de atualizar as regras do firestore
@@ -76,7 +82,7 @@
     2. *date* e *queue*
 
 3. user:
-    2. *email* e *isProvider*
+    1. *email* e *isProvider*
 
 > Nota: todos os indices de forma crescente 
 > Nota: A ordem importa 

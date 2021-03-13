@@ -14,7 +14,6 @@ module.exports.mountAskedPoint = (askedPoint, currency) => {
     ...askedPoint,
     queue,
     date,
-    // TODO: obter valor real do pedido
     amount: 2000,
     currency,
     chargeObject: null,

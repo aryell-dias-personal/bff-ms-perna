@@ -7,17 +7,7 @@ provider:
   region: ${self:custom.REGIONS.${self:provider.stage}}
   project: ${self:custom.PROJECT_ID.${self:provider.stage}}
   credentials: .gcloud/keyfile.json
-  environment:
-    STAGE: ${self:provider.stage}
-    REGION: ${self:provider.region}
-    PROJECT: ${self:provider.project}
-    SERVICE: ${self:service}
-    PERNA_QUEUE: perna-queue-${self:provider.stage}
-    INTEL_URL:  ${self:custom.INTEL_URL.${self:provider.stage}}
-    CALCULATE_ROUTE: CALCULATE_ROUTE_${self:provider.stage}
-    GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
-    PAYMENT_SECRET_KEY: ${self:custom.PAYMENT_SECRET_KEY.${self:provider.stage}}
-    FIREBASE_CONFIG: ./src/config/config.json
+  environment: ${file(ymls/environment.yml)}
 
 functions: ${file(ymls/functions.yml)}
 custom: ${file(ymls/custom.yml)}

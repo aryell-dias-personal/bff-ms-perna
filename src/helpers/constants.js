@@ -10,15 +10,16 @@ module.exports = {
   MESSAGES: {
     NO_USER: 'No user whit this email',
     UNAUTHORIZED_USER: 'unauthorized user',
+    TOKEN_REQUIRED: 'Token is required',
     USER_DOESNT_EXISITS: 'There is no user whit this email',
     USER_EXISITS: 'There is a user whit this email',
-    MUST_BE_PROVIDER: 'Deve ser um provider',
-    BUSY_USER: 'O usuário não pode ter um compromisso marcado',
-    INVALID_START_END: 'A hora de inicio deve ser menor que a de fim',
-    NULL_ASKED_POINT: 'O pedido não pode ser nulo',
-    INVALID_QUEUE: 'Não podem existir dias iguais na fila',
-    MUST_BE_TWO_PROVIDERS: 'Devem haver dois providers envolvidos',
-    NO_DEVICE: 'Nenhum dispositivo cadastrado',
+    MUST_BE_PROVIDER: 'Must be a provider',
+    BUSY_USER: 'The user cannot have an appointment scheduled',
+    INVALID_START_END: 'Start time must be less than end time',
+    NULL_ASKED_POINT: 'Order cannot be null',
+    INVALID_QUEUE: 'There cannot be equal days in the queue',
+    MUST_BE_TWO_PROVIDERS: 'There must be two providers involved',
+    NO_DEVICE: 'No devices registered',
   },
   ENCODED_NAMES: {
     SEPARETOR: '<{*_-_*}>',
@@ -48,6 +49,5 @@ module.exports = {
   },
   RETURN_MESSAGES: {
     SUCCESS: 'success',
-    ERROR: 'error',
   },
 };

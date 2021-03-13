@@ -1,0 +1,10 @@
+STAGE: ${self:provider.stage}
+REGION: ${self:provider.region}
+PROJECT: ${self:provider.project}
+SERVICE: ${self:service}
+PERNA_QUEUE: perna-queue-${self:provider.stage}
+INTEL_URL:  ${self:custom.INTEL_URL.${self:provider.stage}}
+CALCULATE_ROUTE: CALCULATE_ROUTE_${self:provider.stage}
+GOOGLE_API_URL: ${self:custom.GOOGLE_URL.${self:provider.stage}}
+STRIPE_SECRET_KEY_VERSION_NAME: ${self:custom.STRIPE_SECRET_KEY_VERSION_NAME.${self:provider.stage}}
+FIREBASE_CONFIG: ./src/config/config.json

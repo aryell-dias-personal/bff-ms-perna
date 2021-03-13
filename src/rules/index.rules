@@ -1,7 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TODO: excluir essa regra (depende do front)
     match /agent/{agent} {
       allow read: if true;
       allow update: 
