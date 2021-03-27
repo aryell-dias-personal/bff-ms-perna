@@ -2,7 +2,7 @@
 
 const admin = require('firebase-admin');
 const { COLLECTION_NAMES, MESSAGES } = require('./constants');
-const { AuthException } = require('../../helpers/error');
+const { AuthException } = require('../helpers/error');
 
 const verifyAccess = async (user, companyId) => {
   const companyRef = admin.firestore().collection(COLLECTION_NAMES.COMPANY);
