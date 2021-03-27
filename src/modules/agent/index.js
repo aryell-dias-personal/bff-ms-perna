@@ -2,12 +2,32 @@
 
 const admin = require('firebase-admin');
 const { parseDocs } = require('../../helpers/start-helper');
-const { COLLECTION_NAMES, MESSAGES, USER_FIELDS } = require('../../helpers/constants');
-const { isInsertValid } = require('../../helpers/validators');
+const {
+  COLLECTION_NAMES,
+  MESSAGES,
+  USER_FIELDS,
+  EVENT_TYPE,
+} = require('../../helpers/constants');
+const { isInsertEventValid } = require('../../helpers/validators');
 const { mountAgent } = require('../../helpers/insert-agent-helper');
 const { AuthException } = require('../../helpers/error');
 
+const insertAgent = async (agent, user) => {
+  if (user.email !== agent.email) throw new AuthException(MESSAGES.UNAUTHORIZED_USER);
+  if (!user) throw new Error(MESSAGES.MUST_BE_PROVIDER);
+  const isValid = await isInsertEventValid(agent, EVENT_TYPE.AGENT);
+  if (!isValid) throw new Error(MESSAGES.NOT_VALID_EVENT);
+
+  const agentRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
+  const newAgent = mountAgent(agent);
+  await agentRef.add(newAgent);
+
+  return { newAgent: JSON.stringify(newAgent) };
+};
+
 const askNewAgent = async (agent) => {
+  const isValid = await isInsertEventValid(agent, EVENT_TYPE.AGENT);
+  if (!isValid) throw new Error(MESSAGES.NOT_VALID_EVENT);
   const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
   const toUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.email)
     .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
@@ -34,11 +54,11 @@ const askNewAgent = async (agent) => {
   return { newAgent: agent };
 };
 
-const answerNewAgent = async ({ fromEmail, toEmail, accepted }) => {
+const answerNewAgent = async ({ agent, accepted }) => {
   const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
-  const toUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', toEmail)
+  const toUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.email)
     .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
-  const fromUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', fromEmail)
+  const fromUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.fromEmail)
     .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
   const users = parseDocs(toUserQuerySnapshot).concat(parseDocs(fromUserQuerySnapshot));
   console.log(`Users: ${JSON.stringify(users)}`);
@@ -57,20 +77,16 @@ const answerNewAgent = async ({ fromEmail, toEmail, accepted }) => {
     });
   });
   await Promise.all(promisses);
+
+  if (accepted) {
+    const response = insertAgent(agent, toUser);
+    return {
+      ...response,
+      accepted,
+    };
+  }
+
   return { accepted };
-};
-
-const insertAgent = async (agent, user) => {
-  if (user.email !== agent.email) throw new AuthException(MESSAGES.UNAUTHORIZED_USER);
-  if (!user) throw new Error(MESSAGES.MUST_BE_PROVIDER);
-  const isValid = await isInsertValid(agent);
-  if (!isValid) throw new Error(MESSAGES.BUSY_USER);
-
-  const agentRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
-  const newAgent = mountAgent(agent);
-  await agentRef.add(newAgent);
-
-  return { newAgent: JSON.stringify(newAgent) };
 };
 
 module.exports = {

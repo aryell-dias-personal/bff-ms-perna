@@ -2,9 +2,9 @@
 
 const admin = require('firebase-admin');
 const stripe = require('stripe');
-const { isInsertValid } = require('../../helpers/validators');
+const { isInsertEventValid } = require('../../helpers/validators');
 const { mountAskedPoint } = require('../../helpers/insert-asked-helper');
-const { COLLECTION_NAMES, MESSAGES } = require('../../helpers/constants');
+const { COLLECTION_NAMES, MESSAGES, EVENT_TYPE } = require('../../helpers/constants');
 const { getStripeScretKey } = require('../../helpers/payment-helper');
 const { AuthException } = require('../../helpers/error');
 
@@ -42,8 +42,8 @@ const insertCreditCard = async (source, user) => {
 
 const confirmAskedPointPayment = async (askedPoint, user) => {
   if (user.email !== askedPoint.email) throw new AuthException(MESSAGES.UNAUTHORIZED_USER);
-  const isValid = await isInsertValid(askedPoint);
-  if (!isValid) throw new Error(MESSAGES.BUSY_USER);
+  const isValid = await isInsertEventValid(askedPoint, EVENT_TYPE.ASKED_POINT);
+  if (!isValid) throw new Error(MESSAGES.NOT_VALID_EVENT);
 
   const stripeSecret = await getStripeScretKey();
   const stripeInstance = stripe(stripeSecret);
