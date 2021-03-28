@@ -24,7 +24,7 @@ const createCompany =  async ({ company, bankAccount }, user) => {
   });
 };
 
-const deleteCompany =  async (companyId, user) => {
+const deleteCompany =  async ({ companyId }, user) => {
   const { companyRef } = await verifyAccess(user, companyId);
   const today = (new Date()).setMinutes(0, 0, 0) / 1000;
   const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
