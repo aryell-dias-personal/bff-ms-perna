@@ -25,7 +25,7 @@ const createCompany =  async ({ company, bankAccount }, user) => {
 };
 
 const deleteCompany =  async ({ companyId }, user) => {
-  const { companyRef } = await verifyAccess(user, companyId);
+  const { companyRef, company } = await verifyAccess(user, companyId);
   const today = (new Date()).setMinutes(0, 0, 0) / 1000;
   console.log(`TODAY: ${today}`);
   const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
@@ -36,6 +36,8 @@ const deleteCompany =  async ({ companyId }, user) => {
   if (!agents.empty) {
     throw new Error(MESSAGES.THERE_ARE_EXPEDIENTS);
   }
+  const bankRef = admin.firestore().collection(COLLECTION_NAMES.BANK);
+  await bankRef.doc(company.bankAccountId).delete();
   await companyRef.doc(companyId).delete();
 };
 
