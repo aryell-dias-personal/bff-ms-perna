@@ -27,11 +27,13 @@ const createCompany =  async ({ company, bankAccount }, user) => {
 const deleteCompany =  async ({ companyId }, user) => {
   const { companyRef } = await verifyAccess(user, companyId);
   const today = (new Date()).setMinutes(0, 0, 0) / 1000;
+  console.log(`TODAY: ${today}`);
   const agentsRef = admin.firestore().collection(COLLECTION_NAMES.AGENT);
   const agents = await agentsRef
-    .where(AGENT_FIELDS.companyId, '==', companyId)
+    .where(AGENT_FIELDS.COMPANY_ID, '==', companyId)
     .where(AGENT_FIELDS.DATE, '>=', today).get();
-  if (agents.empty) {
+  console.log(`AGENTS: ${JSON.stringify(agents)}`);
+  if (!agents.empty) {
     throw new Error(MESSAGES.THERE_ARE_EXPEDIENTS);
   }
   await companyRef.doc(companyId).delete();
@@ -49,8 +51,9 @@ const updateCompany =  async (company, user) => {
 const changeBank =  async ({ companyId, bankAccount }, user) => {
   const { company } = await verifyAccess(user, companyId);
   const bankRef = admin.firestore().collection(COLLECTION_NAMES.BANK);
-  const bank = bankRef.doc(company.bankAccountId).get();
-  if (!bank) throw new Error(MESSAGES.NO_BANK);
+  const bank = await bankRef.doc(company.bankAccountId).get();
+  const bankData = bank.data();
+  if (!bankData) throw new Error(MESSAGES.NO_BANK);
 
   const bankValid = isBankValid(bankAccount);
   if (!bankValid) throw new Error(MESSAGES.NOT_VALID_BANK);

@@ -42,8 +42,9 @@ const isInsertEventValid = async (event, eventType) => {
       return false;
     }
     const companyRef = admin.firestore().collection(COLLECTION_NAMES.COMPANY);
-    const company = companyRef.doc(event.companyId).get();
-    if (!company.employees.includes(event.email)) {
+    const company = await companyRef.doc(event.companyId).get();
+    const companyData = company.data();
+    if (!companyData.employees.includes(event.email)) {
       return false;
     }
   } else if (event && eventType === EVENT_TYPE.AGENT) {

@@ -51,6 +51,7 @@ module.exports = {
   AGENT_FIELDS: {
     EMAIL: 'email',
     DATE: 'date',
+    COMPANY_ID: 'companyId',
     QUEUE: 'queue',
     ASKED_START_AT: 'askedStartAt',
     ASKED_END_AT: 'askedEndAt',
