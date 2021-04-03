@@ -70,15 +70,16 @@ const answerManager = async ({ companyId, accepted }, user) => {
     .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
   const [userData] = parseDocs(userQuerySnapshot);
 
+  const toUpdateCompany = {
+    askedEmployes: askedEmployes.filter(email => email !== userData.email),
+  };
   if (accepted) {
-    await companyRef.doc(companyId).set({
-      employes: [
-        ...employes,
-        userData.email,
-      ],
-      askedEmployes: askedEmployes.filter(email => email !== userData.email),
-    }, { merge: true });
+    toUpdateCompany.employes = [
+      ...employes,
+      userData.email,
+    ];
   }
+  await companyRef.doc(companyId).set(toUpdateCompany, { merge: true });
 
   const emoji = `${accepted ? '👍' : '👎'}`;
   const promisses = userData.messagingTokens.map(async (token) => {
