@@ -56,7 +56,7 @@ const updateCompany =  async (company, user) => {
   await companyRef.doc(company.id).set(company, { merge: true });
 };
 
-const answerManager = async ({ companyId, accept }, user) => {
+const answerManager = async ({ companyId, accepted }, user) => {
   const companyRef = admin.firestore().collection(COLLECTION_NAMES.COMPANY);
   const company = await companyRef.doc(companyId).get();
   const { employes, askedEmployes } = company.data();
@@ -70,7 +70,7 @@ const answerManager = async ({ companyId, accept }, user) => {
     .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
   const [userData] = parseDocs(userQuerySnapshot);
 
-  if (accept) {
+  if (accepted) {
     await companyRef.doc(companyId).set({
       employes: [
         ...employes,
@@ -80,20 +80,20 @@ const answerManager = async ({ companyId, accept }, user) => {
     }, { merge: true });
   }
 
-  const emoji = `${accept ? '👍' : '👎'}`;
+  const emoji = `${accepted ? '👍' : '👎'}`;
   const promisses = userData.messagingTokens.map(async (token) => {
     await admin.messaging().sendToDevice(token, {
       notification: {
         title: 'Cadastro de funcionário',
         body:
-          `O ${userData.name} ${accept ? '' : 'não'} aceitou ser seu funcionário ${emoji}`,
+          `O ${userData.name} ${accepted ? '' : 'não'} aceitou ser seu funcionário ${emoji}`,
         click_action: 'FLUTTER_NOTIFICATION_CLICK',
       },
     });
   });
   await Promise.all(promisses);
 
-  return { accept };
+  return { accepted };
 };
 
 const askEmploye = async ({ companyId, employe }, user) => {
