@@ -2,7 +2,13 @@
 
 const admin = require('firebase-admin');
 const { AuthException } = require('../../helpers/error');
-const { MESSAGES, COLLECTION_NAMES, AGENT_FIELDS } = require('../../helpers/constants');
+const {
+  MESSAGES,
+  COLLECTION_NAMES,
+  AGENT_FIELDS,
+  USER_FIELDS,
+} = require('../../helpers/constants');
+const { parseDocs } = require('../../helpers/start-helper');
 const { verifyAccess } = require('../../helpers/company-helper');
 const { isCompanyValid, isBankValid } = require('../../helpers/validators');
 
@@ -50,6 +56,79 @@ const updateCompany =  async (company, user) => {
   await companyRef.doc(company.id).set(company, { merge: true });
 };
 
+const answerManager = async ({ companyId, accept }, user) => {
+  const companyRef = admin.firestore().collection(COLLECTION_NAMES.COMPANY);
+  const company = await companyRef.doc(companyId).get();
+  const { employes, askedEmployes } = company.data();
+
+  if (askedEmployes && askedEmployes.length && askedEmployes.includes(user.email)) {
+    throw new Error(MESSAGES.EMPLOYEE_NOT_ASKED);
+  }
+
+  const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
+  const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', user.email)
+    .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
+  const [userData] = parseDocs(userQuerySnapshot);
+
+  if (accept) {
+    await companyRef.doc(companyId).set({
+      employes: [
+        ...employes,
+        userData.email,
+      ],
+      askedEmployes: askedEmployes.filter(email => email !== userData.email),
+    }, { merge: true });
+  }
+
+  const emoji = `${accept ? '👍' : '👎'}`;
+  const promisses = userData.messagingTokens.map(async (token) => {
+    await admin.messaging().sendToDevice(token, {
+      notification: {
+        title: 'Cadastro de funcionário',
+        body:
+          `O ${userData.name} ${accept ? '' : 'não'} aceitou ser seu funcionário ${emoji}`,
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+      },
+    });
+  });
+  await Promise.all(promisses);
+
+  return { accept };
+};
+
+const askEmploye = async ({ companyId, employe }, user) => {
+  const { companyRef, company } = await verifyAccess(user, companyId);
+
+  await companyRef.doc(companyId).set({
+    askedEmployes: [
+      ...company.askedEmployes,
+      employe,
+    ],
+  }, { merge: true });
+
+  const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
+  const userQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', user.email)
+    .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
+  const [userData] = parseDocs(userQuerySnapshot);
+
+  const promisses = userData.messagingTokens.map(async (token) => {
+    await admin.messaging().sendToDevice(token, {
+      notification: {
+        title: 'Cadastro de funcionário',
+        body: `O ${
+          userData.name
+        } esta te pedindo para você se tornar funcionário de sua empresa, vem dar um olhada 🔍`,
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+      },
+      data: {
+        companyId,
+      },
+    });
+  });
+  await Promise.all(promisses);
+  return { companyId };
+};
+
 const changeBank =  async ({ companyId, bankAccount }, user) => {
   const { company } = await verifyAccess(user, companyId);
   const bankRef = admin.firestore().collection(COLLECTION_NAMES.BANK);
@@ -68,4 +147,6 @@ module.exports = {
   deleteCompany,
   updateCompany,
   changeBank,
+  answerManager,
+  askEmploye,
 };

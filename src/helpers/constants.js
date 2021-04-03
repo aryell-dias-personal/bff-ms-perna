@@ -12,6 +12,7 @@ module.exports = {
     THERE_ARE_EXPEDIENTS: 'There are still unresolved expedients',
     NO_BANK: 'No bank whit this id',
     NO_USER: 'No user whit this email',
+    EMPLOYEE_NOT_ASKED: 'Not asked employee',
     UNAUTHORIZED_USER: 'unauthorized user',
     TOKEN_REQUIRED: 'Token is required',
     USER_DOESNT_EXISITS: 'There is no user whit this email',

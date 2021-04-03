@@ -54,7 +54,7 @@ const askNewAgent = async (agent) => {
   return { newAgent: agent };
 };
 
-const answerNewAgent = async ({ agent, accepted }) => {
+const answerNewAgent = async ({ agent, accept }) => {
   const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
   const toUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.email)
     .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
@@ -65,28 +65,29 @@ const answerNewAgent = async ({ agent, accepted }) => {
   if (!users || users.length !== 2) throw new Error(MESSAGES.MUST_BE_TWO_PROVIDERS);
   const [toUser, fromUser] = users;
   if (toUser.messagingTokens.length === 0) throw new Error(MESSAGES.NO_DEVICE);
-  const emoji = `${accepted ? '👍' : '👎'}`;
+
+  let response;
+  if (accept) {
+    response = insertAgent(agent, toUser);
+  }
+
+  const emoji = `${accept ? '👍' : '👎'}`;
   const promisses = fromUser.messagingTokens.map(async (token) => {
     await admin.messaging().sendToDevice(token, {
       notification: {
         title: 'Pedido de expediente',
         body:
-          `O ${toUser.name} ${accepted ? '' : 'não'} aceitou seu pedindo de expediente ${emoji}`,
+          `O ${toUser.name} ${accept ? '' : 'não'} aceitou seu pedindo de expediente ${emoji}`,
         click_action: 'FLUTTER_NOTIFICATION_CLICK',
       },
     });
   });
   await Promise.all(promisses);
 
-  if (accepted) {
-    const response = insertAgent(agent, toUser);
-    return {
-      ...response,
-      accepted,
-    };
-  }
-
-  return { accepted };
+  return {
+    ...response,
+    accept,
+  };
 };
 
 module.exports = {
