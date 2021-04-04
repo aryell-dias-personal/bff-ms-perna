@@ -8,6 +8,8 @@ module.exports = {
     SERVICE: 'default',
   },
   MESSAGES: {
+    ALREADY_EMPLOYEE: 'The user is already an employee',
+    ALREADY_ASKED: 'The user was already asked',
     NO_COMPANY: 'No company whit this id',
     THERE_ARE_EXPEDIENTS: 'There are still unresolved expedients',
     NO_BANK: 'No bank whit this id',

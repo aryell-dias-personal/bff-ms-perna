@@ -59,9 +59,9 @@ const updateCompany =  async (company, user) => {
 const answerManager = async ({ companyId, accepted }, user) => {
   const companyRef = admin.firestore().collection(COLLECTION_NAMES.COMPANY);
   const company = await companyRef.doc(companyId).get();
-  const { employes, askedEmployes } = company.data();
+  const { employees, askedEmployees } = company.data();
 
-  if (askedEmployes && askedEmployes.length && askedEmployes.includes(user.email)) {
+  if (!askedEmployees || !askedEmployees.length || !askedEmployees.includes(user.email)) {
     throw new Error(MESSAGES.EMPLOYEE_NOT_ASKED);
   }
 
@@ -71,11 +71,11 @@ const answerManager = async ({ companyId, accepted }, user) => {
   const [userData] = parseDocs(userQuerySnapshot);
 
   const toUpdateCompany = {
-    askedEmployes: askedEmployes.filter(email => email !== userData.email),
+    askedEmployees: askedEmployees.filter(email => email !== userData.email),
   };
   if (accepted) {
-    toUpdateCompany.employes = [
-      ...employes,
+    toUpdateCompany.employees = [
+      ...employees,
       userData.email,
     ];
   }
@@ -97,13 +97,25 @@ const answerManager = async ({ companyId, accepted }, user) => {
   return { accepted };
 };
 
-const askEmploye = async ({ companyId, employe }, user) => {
+const askEmployee = async ({ companyId, employee }, user) => {
   const { companyRef, company } = await verifyAccess(user, companyId);
 
+  if (company.askedEmployees
+    && company.askedEmployees.length
+    && company.askedEmployees.includes(user.email)) {
+    throw new Error(MESSAGES.ALREADY_ASKED);
+  }
+
+  if (company.employees && company.employees.length && company.employees.includes(user.email)) {
+    throw new Error(MESSAGES.ALREADY_EMPLOYEE);
+  }
+
   await companyRef.doc(companyId).set({
-    askedEmployes: [
-      ...company.askedEmployes,
-      employe,
+    askedEmployees: company.askedEmployees ? [
+      ...company.askedEmployees,
+      employee,
+    ] : [
+      employee,
     ],
   }, { merge: true });
 
@@ -149,5 +161,5 @@ module.exports = {
   updateCompany,
   changeBank,
   answerManager,
-  askEmploye,
+  askEmployee,
 };

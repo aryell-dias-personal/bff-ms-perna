@@ -17,7 +17,7 @@ const {
   updateCompany,
   changeBank,
   answerManager,
-  askEmploye,
+  askEmployee,
 } = require('./company');
 const { getUser, insertUser, logout } = require('./user');
 const { handler, authHandler } = require('../helpers/handler');
@@ -39,7 +39,7 @@ router.post('/deleteCompany', authHandler(deleteCompany));
 router.post('/updateCompany', authHandler(updateCompany));
 router.post('/changeBank', authHandler(changeBank));
 router.post('/answerManager', authHandler(answerManager));
-router.post('/askEmploye', authHandler(askEmploye));
+router.post('/askEmployee', authHandler(askEmployee));
 
 router.post('/confirmAskedPointPayment', authHandler(confirmAskedPointPayment));
 router.post('/deleteCreditCard', authHandler(deleteCreditCard));
