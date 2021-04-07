@@ -28,6 +28,7 @@ const insertAgent = async (agent, user) => {
 const askNewAgent = async (agent) => {
   const isValid = await isInsertEventValid(agent, EVENT_TYPE.AGENT);
   if (!isValid) throw new Error(MESSAGES.NOT_VALID_EVENT);
+  delete agent.staticMap;
   const usersRef = admin.firestore().collection(COLLECTION_NAMES.USER);
   const toUserQuerySnapshot = await usersRef.where(USER_FIELDS.EMAIL, '==', agent.email)
     .where(USER_FIELDS.IS_PROVIDER, '==', true).get();
